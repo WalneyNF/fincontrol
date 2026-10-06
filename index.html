@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FinControl AI — Controle Financeiro Pessoal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.0/index.css">
+<style>
+  :root{
+    --bg:#0b0f1a; --panel:#111827; --panel2:#0f172a; --border:#1f2937;
+    --text:#e5e7eb; --muted:#94a3b8; --accent:#10b981; --accent2:#8b5cf6;
+    --danger:#ef4444; --warn:#f59e0b; --info:#3b82f6;
+  }
+  html,body{background:var(--bg); color:var(--text); font-family:'Inter',sans-serif;}
+  h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif; letter-spacing:-0.01em;}
+  .glass{background:rgba(17,24,39,.75); backdrop-filter:blur(12px); border:1px solid var(--border);}
+  .gradient-bg{background:linear-gradient(135deg,#10b981 0%,#3b82f6 50%,#8b5cf6 100%);}
+  .gradient-text{background:linear-gradient(135deg,#10b981,#3b82f6,#8b5cf6); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .btn{transition:all .2s ease;}
+  .btn:hover{transform:translateY(-1px); box-shadow:0 8px 20px rgba(16,185,129,.25);}
+  .card-hover{transition:all .25s ease;}
+  .card-hover:hover{transform:translateY(-3px); border-color:#10b981;}
+  .sidebar-link{transition:all .15s ease;}
+  .sidebar-link:hover{background:rgba(16,185,129,.1); color:#10b981;}
+  .sidebar-link.active{background:linear-gradient(90deg,rgba(16,185,129,.15),transparent); color:#10b981; border-left:3px solid #10b981;}
+  .fade-in{animation:fadeIn .3s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  .scroll::-webkit-scrollbar{width:8px; height:8px;}
+  .scroll::-webkit-scrollbar-thumb{background:#1f2937; border-radius:4px;}
+  .scroll::-webkit-scrollbar-thumb:hover{background:#374151;}
+  input,select,textarea{background:#0f172a !important; border:1px solid #1f2937; color:#e5e7eb;}
+  input:focus,select:focus,textarea:focus{outline:none; border-color:#10b981; box-shadow:0 0 0 3px rgba(16,185,129,.15);}
+  .modal-backdrop{background:rgba(0,0,0,.7); backdrop-filter:blur(4px);}
+  .badge{display:inline-flex; align-items:center; padding:2px 10px; border-radius:9999px; font-size:11px; font-weight:600;}
+  .pulse-dot{width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 0 0 rgba(16,185,129,.7); animation:pulse 2s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(16,185,129,.7);} 70%{box-shadow:0 0 0 10px rgba(16,185,129,0);} 100%{box-shadow:0 0 0 0 rgba(16,185,129,0);}}
+  .hero-glow{position:absolute; width:500px; height:500px; border-radius:50%; filter:blur(120px); opacity:.3;}
+  .tab-active{background:linear-gradient(135deg,#10b981,#059669); color:white;}
+  .progress-bar{height:8px; border-radius:4px; background:#1f2937; overflow:hidden;}
+  .progress-fill{height:100%; transition:width .5s ease;}
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+  <div class="hero-glow gradient-bg" style="top:-100px; left:-100px;"></div>
+  <div class="hero-glow" style="bottom:-100px; right:-100px; background:#8b5cf6;"></div>
+  
+  <div class="glass rounded-3xl p-8 md:p-10 w-full max-w-md relative z-10 fade-in">
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-bg mb-4 shadow-lg">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <h1 class="text-3xl font-bold gradient-text mb-2">FinControl AI</h1>
+      <p class="text-slate-400 text-sm">Um presente da IA para os seres humanos 💚</p>
+    </div>
+
+    <div class="space-y-4">
+      <div>
+        <label class="text-xs text-slate-400 mb-1 block">Nome da sua Empresa / Família</label>
+        <input id="loginCompany" type="text" placeholder="Ex: Família Silva, MEU NEGÓCIO" class="w-full px-4 py-3 rounded-xl"/>
+      </div>
+      <div>
+        <label class="text-xs text-slate-400 mb-1 block">Seu nome</label>
+        <input id="loginUser" type="text" placeholder="Ex: João" class="w-full px-4 py-3 rounded-xl"/>
+      </div>
+      <div>
+        <label class="text-xs text-slate-400 mb-1 block">Senha</label>
+        <input id="loginPass" type="password" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl"/>
+      </div>
+      <button onclick="doLogin()" class="w-full btn gradient-bg text-white font-semibold py-3 rounded-xl">Entrar / Criar Empresa</button>
+      
+      <div class="text-center text-xs text-slate-500 pt-2">
+        <p>Empresas salvas no navegador:</p>
+        <div id="companyList" class="mt-2 space-y-1"></div>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-6 border-t border-slate-800 text-center text-xs text-slate-500">
+      <p>FinControl AI v0.1</p>
+      <p class="mt-1">Walney Moreira Klein · walneyk@hotmail.com</p>
+    </div>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="appScreen" class="hidden min-h-screen flex">
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="w-64 glass border-r border-slate-800 flex flex-col fixed md:relative h-screen z-30">
+    <div class="p-5 border-b border-slate-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <h2 class="font-bold text-sm brand">FinControl AI</h2>
+          <p class="text-xs text-slate-400" id="currentCompany">Empresa</p>
+        </div>
+      </div>
+    </div>
+
+    <nav class="flex-1 p-3 space-y-1 overflow-y-auto scroll">
+      <a onclick="navigate('dashboard')" class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="dashboard">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </a>
+      <a onclick="navigate('transactions')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="transactions">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Transações
+      </a>
+      <a onclick="navigate('categories')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="categories">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        Categorias
+      </a>
+      <a onclick="navigate('cards')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="cards">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+        Cartões de Crédito
+      </a>
+      <a onclick="navigate('accounts')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="accounts">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        Contas / Carteiras
+      </a>
+      <a onclick="navigate('budgets')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="budgets">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Orçamentos
+      </a>
+      <a onclick="navigate('reports')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="reports">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Relatórios
+      </a>
+      <a onclick="navigate('help')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="help">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        Ajuda / Educação
+      </a>
+      <a onclick="navigate('settings')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="settings">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Configurações
+      </a>
+    </nav>
+
+    <div class="p-3 border-t border-slate-800">
+      <button onclick="doLogout()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Sair
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 md:ml-0 min-h-screen">
+    <!-- TOPBAR -->
+    <div class="sticky top-0 z-20 glass border-b border-slate-800 px-4 md:px-8 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar()" class="md:hidden p-2 rounded-lg hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1 id="pageTitle" class="text-lg md:text-xl font-bold">Dashboard</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="hidden md:flex items-center gap-2 text-xs text-slate-400">
+          <span class="pulse-dot"></span>
+          <span id="currentDate"></span>
+        </div>
+        <div class="w-9 h-9 rounded-full gradient-bg flex items-center justify-center font-bold text-sm" id="userAvatar">U</div>
+      </div>
+    </div>
+
+    <div id="pageContent" class="p-4 md:p-8 fade-in"></div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+  <div class="glass rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto scroll" id="modalContent"></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="hidden fixed bottom-6 right-6 z-50 glass rounded-xl px-5 py-3 shadow-2xl border-l-4 border-emerald-500"></div>
+
+<script>
+/* ======================= STATE ======================= */
+const DB_KEY = 'fincontrol_db_v1';
+let db = loadDB();
+let currentCompanyId = null;
+let currentPage = 'dashboard';
+let charts = {};
+
+function loadDB(){
+  const raw = localStorage.getItem(DB_KEY);
+  if(raw) return JSON.parse(raw);
+  return { companies: {} };
+}
+function saveDB(){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+function currentCompany(){ return db.companies[currentCompanyId]; }
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function fmtBRL(v){ return (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function monthKey(d){ return d.slice(0,7); }
+
+/* ======================= AUTH ======================= */
+function doLogin(){
+  const company = document.getElementById('loginCompany').value.trim();
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if(!company || !user || !pass){ toast('Preencha todos os campos','warn'); return; }
+  
+  // find existing
+  const existing = Object.values(db.companies).find(c => c.name.toLowerCase()===company.toLowerCase());
+  if(existing){
+    if(existing.password !== pass){ toast('Senha incorreta','danger'); return; }
+    currentCompanyId = existing.id;
+  } else {
+    const id = uid();
+    db.companies[id] = createEmptyCompany(id, company, user, pass);
+    saveDB();
+    currentCompanyId = id;
+  }
+  showApp();
+}
+function doLogout(){
+  currentCompanyId = null;
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  renderCompanyList();
+}
+function createEmptyCompany(id, name, user, pass){
+  return {
+    id, name, user, password: pass, createdAt: today(),
+    categories: defaultCategories(),
+    accounts: defaultAccounts(),
+    cards: [],
+    transactions: [],
+    budgets: []
+  };
+}
+function defaultCategories(){
+  return [
+    {id:uid(), name:'Salário', type:'income', color:'#10b981', icon:'💰'},
+    {id:uid(), name:'Alimentação', type:'expense', color:'#f59e0b', icon:'🍔'},
+    {id:uid(), name:'Moradia', type:'expense', color:'#3b82f6', icon:'🏠'},
+    {id:uid(), name:'Transporte', type:'expense', color:'#8b5cf6', icon:'🚗'},
+    {id:uid(), name:'Saúde', type:'expense', color:'#ef4444', icon:'💊'},
+    {id:uid(), name:'Lazer', type:'expense', color:'#ec4899', icon:'🎮'},
+    {id:uid(), name:'Educação', type:'expense', color:'#06b6d4', icon:'📚'},
+    {id:uid(), name:'Investimentos', type:'income', color:'#14b8a6', icon:'📈'},
+    {id:uid(), name:'Outros', type:'expense', color:'#64748b', icon:'📦'}
+  ];
+}
+function defaultAccounts(){
+  return [
+    {id:uid(), name:'Conta Corrente', type:'checking', balance:0, color:'#3b82f6'},
+    {id:uid(), name:'Poupança', type:'savings', balance:0, color:'#10b981'},
+    {id:uid(), name:'Dinheiro', type:'cash', balance:0, color:'#f59e0b'}
+  ];
+}
+function renderCompanyList(){
+  const list = document.getElementById('companyList');
+  const companies = Object.values(db.companies);
+  if(companies.length===0){ list.innerHTML='<p class="text-slate-600">Nenhuma empresa ainda</p>'; return; }
+  list.innerHTML = companies.map(c => `<button onclick="quickLogin('${c.id}')" class="w-full text-left px-3 py-1.5 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-xs">${c.name}</button>`).join('');
+}
+function quickLogin(id){
+  const pass = prompt('Senha para '+db.companies[id].name+':');
+  if(!pass) return;
+  if(db.companies[id].password !== pass){ toast('Senha incorreta','danger'); return; }
+  currentCompanyId = id;
+  showApp();
+}
+
+/* ======================= APP ======================= */
+function showApp(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+  const c = currentCompany();
+  document.getElementById('currentCompany').textContent = c.name;
+  document.getElementById('userAvatar').textContent = c.user.charAt(0).toUpperCase();
+  document.getElementById('currentDate').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  navigate('dashboard');
+}
+function toggleSidebar(){
+  const s = document.getElementById('sidebar');
+  s.classList.toggle('-translate-x-full');
+}
+function navigate(page){
+  currentPage = page;
+  document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('active'));
+  const active = document.querySelector(`[data-page="${page}"]`);
+  if(active) active.classList.add('active');
+  const titles = {dashboard:'Dashboard', transactions:'Transações', categories:'Categorias', cards:'Cartões de Crédito', accounts:'Contas / Carteiras', budgets:'Orçamentos', reports:'Relatórios', help:'Ajuda & Educação Financeira', settings:'Configurações'};
+  document.getElementById('pageTitle').textContent = titles[page] || '';
+  renderPage();
+  if(window.innerWidth<768) document.getElementById('sidebar').classList.add('-translate-x-full');
+}
+
+function renderPage(){
+  const fn = {dashboard:renderDashboard, transactions:renderTransactions, categories:renderCategories, cards:renderCards, accounts:renderAccounts, budgets:renderBudgets, reports:renderReports, help:renderHelp, settings:renderSettings};
+  (fn[currentPage]||renderDashboard)();
+}
+
+/* ======================= DASHBOARD ======================= */
+function renderDashboard(){
+  const c = currentCompany();
+  const mk = monthKey(today());
+  const monthTx = c.transactions.filter(t=>monthKey(t.date)===mk);
+  const income = monthTx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const expense = monthTx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const balance = income - expense;
+  const totalBalance = c.accounts.reduce((s,a)=>s+a.balance,0);
+  const cardDebt = c.cards.reduce((s,card)=>{
+    const open = c.transactions.filter(t=>t.cardId===card.id && !t.paid).reduce((s,t)=>s+t.amount,0);
+    return s+open;
+  },0);
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      ${statCard('Receitas do Mês', fmtBRL(income), 'text-emerald-400', 'bg-emerald-500/10', '↑')}
+      ${statCard('Despesas do Mês', fmtBRL(expense), 'text-red-400', 'bg-red-500/10', '↓')}
+      ${statCard('Saldo do Mês', fmtBRL(balance), balance>=0?'text-emerald-400':'text-red-400', balance>=0?'bg-emerald-500/10':'bg-red-500/10', balance>=0?'✓':'⚠')}
+      ${statCard('Patrimônio Total', fmtBRL(totalBalance - cardDebt), 'text-blue-400', 'bg-blue-500/10', '💎')}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+      <div class="glass rounded-2xl p-5 lg:col-span-2">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold">Fluxo dos últimos 6 meses</h3>
+        </div>
+        <div style="height:280px;"><canvas id="chartFlow"></canvas></div>
+      </div>
+      <div class="glass rounded-2xl p-5">
+        <h3 class="font-bold mb-4">Despesas por Categoria</h3>
+        <div style="height:280px;"><canvas id="chartCat"></canvas></div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="glass rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold">Últimas Transações</h3>
+          <button onclick="navigate('transactions')" class="text-xs text-emerald-400 hover:underline">Ver todas →</button>
+        </div>
+        <div class="space-y-2">
+          ${c.transactions.slice(-6).reverse().map(t=>{
+            const cat = c.categories.find(x=>x.id===t.categoryId);
+            return `<div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/50">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style="background:${cat?.color||'#64748b'}22">${cat?.icon||'•'}</div>
+                <div>
+                  <p class="text-sm font-medium">${t.description}</p>
+                  <p class="text-xs text-slate-400">${cat?.name||'—'} · ${formatDate(t.date)}</p>
+                </div>
+              </div>
+              <span class="font-bold text-sm ${t.type==='income'?'text-emerald-400':'text-red-400'}">${t.type==='income'?'+':'-'}${fmtBRL(t.amount)}</span>
+            </div>`;
+          }).join('') || '<p class="text-center text-slate-500 text-sm py-6">Nenhuma transação ainda. Vá em Transações para começar!</p>'}
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-5">
+        <h3 class="font-bold mb-4">💡 Dica do Dia</h3>
+        <div class="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-blue-500/10 border border-emerald-500/20">
+          <p class="text-sm leading-relaxed" id="dailyTip"></p>
+        </div>
+        <div class="mt-4 p-4 rounded-xl bg-slate-900/50">
+          <p class="text-xs text-slate-400 mb-2">Status financeiro</p>
+          ${balance>=0 ? '<p class="text-emerald-400 font-semibold">✓ Você está no azul este mês!</p><p class="text-xs text-slate-400 mt-1">Continue assim e construa sua reserva.</p>' : '<p class="text-red-400 font-semibold">⚠ Você está no vermelho este mês</p><p class="text-xs text-slate-400 mt-1">Revise suas despesas e corte o supérfluo.</p>'}
+        </div>
+      </div>
+    </div>
+  `;
+
+  const tips = [
+    '💰 "Pague-se primeiro": assim que receber, separe uma parte para poupar antes de gastar.',
+    '🧠 Riqueza não é o que você ganha, é o que você mantém e multiplica ao longo do tempo.',
+    '💳 Cartão de crédito NÃO é dinheiro — é capacidade de dívida. Use com consciência.',
+    '🎯 Regra 50/30/20: 50% necessidades, 30% desejos, 20% poupança/investimento.',
+    '🛒 Antes de comprar, espere 7 dias. Se ainda quiser, avalie se pode pagar à vista.',
+    '📈 Quitar uma dívida cara pode ser o melhor "investimento" que você fará.',
+    '🏦 Reserva de emergência = 3 a 6 meses das suas despesas. Comece com R$100.',
+    '📊 Anote TUDO por 30 dias. Você vai se assustar para onde seu dinheiro vai.'
+  ];
+  document.getElementById('dailyTip').textContent = tips[new Date().getDate() % tips.length];
+
+  // Charts
+  setTimeout(()=>{
+    const last6 = getLast6Months();
+    const incomeData = [], expenseData = [], labels = [];
+    last6.forEach(m=>{
+      const txs = c.transactions.filter(t=>monthKey(t.date)===m.key);
+      labels.push(m.label);
+      incomeData.push(txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0));
+      expenseData.push(txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0));
+    });
+    destroyChart('chartFlow');
+    charts.chartFlow = new Chart(document.getElementById('chartFlow'),{
+      type:'line',
+      data:{labels, datasets:[
+        {label:'Receitas', data:incomeData, borderColor:'#10b981', backgroundColor:'rgba(16,185,129,.15)', fill:true, tension:.4},
+        {label:'Despesas', data:expenseData, borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,.15)', fill:true, tension:.4}
+      ]},
+      options:chartOpts()
+    });
+
+    const catData = {};
+    c.transactions.filter(t=>t.type==='expense' && monthKey(t.date)===mk).forEach(t=>{
+      const cat = c.categories.find(x=>x.id===t.categoryId);
+      const name = cat?.name || 'Outros';
+      catData[name] = (catData[name]||0) + t.amount;
+    });
+    destroyChart('chartCat');
+    const catLabels = Object.keys(catData);
+    if(catLabels.length>0){
+      charts.chartCat = new Chart(document.getElementById('chartCat'),{
+        type:'doughnut',
+        data:{labels:catLabels, datasets:[{data:Object.values(catData), backgroundColor:catLabels.map(n=>c.categories.find(c=>c.name===n)?.color||'#64748b'), borderWidth:0}]},
+        options:{...chartOpts(), plugins:{legend:{position:'bottom', labels:{color:'#94a3b8', boxWidth:10, font:{size:10}}}}}
+      });
+    }
+  },50);
+}
+function statCard(title, value, color, bg, icon){
+  return `<div class="glass rounded-2xl p-5 card-hover">
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-xs text-slate-400">${title}</span>
+      <div class="w-8 h-8 rounded-lg ${bg} ${color} flex items-center justify-center font-bold">${icon}</div>
+    </div>
+    <p class="text-2xl font-bold ${color}">${value}</p>
+  </div>`;
+}
+function getLast6Months(){
+  const arr = [];
+  const d = new Date();
+  for(let i=5;i>=0;i--){
+    const nd = new Date(d.getFullYear(), d.getMonth()-i, 1);
+    arr.push({key: nd.toISOString().slice(0,7), label: nd.toLocaleDateString('pt-BR',{month:'short'}).replace('.','')});
+  }
+  return arr;
+}
+function chartOpts(){
+  return {responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#94a3b8'}}}, scales:{x:{ticks:{color:'#64748b'}, grid:{color:'#1f293722'}}, y:{ticks:{color:'#64748b', callback:v=>'R$'+v}, grid:{color:'#1f293744'}}}};
+}
+function destroyChart(id){ if(charts[id]){ charts[id].destroy(); delete charts[id]; } }
+function formatDate(d){ return new Date(d+'T00:00').toLocaleDateString('pt-BR'); }
+
+/* ======================= TRANSACTIONS ======================= */
+function renderTransactions(){
+  const c = currentCompany();
+  document.getElementById('pageContent').innerHTML = `
+    <div class="flex flex-wrap gap-3 mb-5 items-center justify-between">
+      <div class="flex gap-2 flex-wrap">
+        <input id="txSearch" type="text" placeholder="Buscar..." class="px-3 py-2 rounded-lg text-sm" oninput="filterTx()"/>
+        <select id="txFilterType" class="px-3 py-2 rounded-lg text-sm" onchange="filterTx()">
+          <option value="">Todos os tipos</option><option value="income">Receitas</option><option value="expense">Despesas</option>
+        </select>
+        <select id="txFilterCat" class="px-3 py-2 rounded-lg text-sm" onchange="filterTx()">
+          <option value="">Todas categorias</option>
+          ${c.categories.map(cat=>`<option value="${cat.id}">${cat.icon} ${cat.name}</option>`).join('')}
+        </select>
+        <input id="txFilterMonth" type="month" class="px-3 py-2 rounded-lg text-sm" value="${monthKey(today())}" onchange="filterTx()"/>
+      </div>
+      <button onclick="openTxModal()" class="btn gradient-bg text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Nova Transação
+      </button>
+    </div>
+    <div class="glass rounded-2xl overflow-hidden">
+      <div class="overflow-x-auto scroll">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-900/50 text-xs text-slate-400">
+            <tr><th class="text-left p-3">Data</th><th class="text-left p-3">Descrição</th><th class="text-left p-3">Categoria</th><th class="text-left p-3">Conta</th><th class="text-right p-3">Valor</th><th class="p-3"></th></tr>
+          </thead>
+          <tbody id="txTable"></tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  filterTx();
+}
+function filterTx(){
+  const c = currentCompany();
+  const q = (document.getElementById('txSearch')?.value||'').toLowerCase();
+  const type = document.getElementById('txFilterType')?.value||'';
+  const cat = document.getElementById('txFilterCat')?.value||'';
+  const month = document.getElementById('txFilterMonth')?.value||'';
+  let list = [...c.transactions].sort((a,b)=>b.date.localeCompare(a.date));
+  if(q) list = list.filter(t=>t.description.toLowerCase().includes(q));
+  if(type) list = list.filter(t=>t.type===type);
+  if(cat) list = list.filter(t=>t.categoryId===cat);
+  if(month) list = list.filter(t=>monthKey(t.date)===month);
+  const tbody = document.getElementById('txTable');
+  if(list.length===0){ tbody.innerHTML = '<tr><td colspan="6" class="text-center text-slate-500 py-8">Nenhuma transação encontrada</td></tr>'; return; }
+  tbody.innerHTML = list.map(t=>{
+    const cat = c.categories.find(x=>x.id===t.categoryId);
+    const acc = c.accounts.find(x=>x.id===t.accountId);
+    return `<tr class="border-t border-slate-800 hover:bg-slate-900/30">
+      <td class="p-3 text-slate-400">${formatDate(t.date)}</td>
+      <td class="p-3 font-medium">${t.description}</td>
+      <td class="p-3"><span class="badge" style="background:${cat?.color||'#64748b'}22; color:${cat?.color||'#94a3b8'}">${cat?.icon||''} ${cat?.name||'—'}</span></td>
+      <td class="p-3 text-slate-400 text-xs">${acc?.name||'—'}</td>
+      <td class="p-3 text-right font-bold ${t.type==='income'?'text-emerald-400':'text-red-400'}">${t.type==='income'?'+':'-'}${fmtBRL(t.amount)}</td>
+      <td class="p-3 text-right">
+        <button onclick="openTxModal('${t.id}')" class="text-slate-400 hover:text-blue-400 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+        <button onclick="deleteTx('${t.id}')" class="text-slate-400 hover:text-red-400 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function openTxModal(id){
+  const c = currentCompany();
+  const t = id ? c.transactions.find(x=>x.id===id) : null;
+  showModal(`
+    <div class="p-6">
+      <h3 class="text-xl font-bold mb-5">${t?'Editar':'Nova'} Transação</h3>
+      <div class="space-y-3">
+        <div class="grid grid-cols-2 gap-2">
+          <label class="flex items-center gap-2 p-3 rounded-lg cursor-pointer ${(!t||t.type==='expense')?'bg-red-500/20 border border-red-500/50':'bg-slate-800'}" onclick="document.getElementById('txType').value='expense'; this.classList.add('bg-red-500/20','border','border-red-500/50'); this.nextElementSibling.classList.remove('bg-emerald-500/20','border','border-emerald-500/50'); this.nextElementSibling.classList.add('bg-slate-800');">
+            <input type="radio" name="txTypeR" value="expense" ${(!t||t.type==='expense')?'checked':''} onchange="document.getElementById('txType').value='expense'" class="hidden"/>
+            <span class="text-red-400 font-semibold">↓ Despesa</span>
+          </label>
+          <label class="flex items-center gap-2 p-3 rounded-lg cursor-pointer ${(t&&t.type==='income')?'bg-emerald-500/20 border border-emerald-500/50':'bg-slate-800'}" onclick="document.getElementById('txType').value='income'; this.classList.add('bg-emerald-500/20','border','border-emerald-500/50'); this.previousElementSibling.classList.remove('bg-red-500/20','border','border-red-500/50'); this.previousElementSibling.classList.add('bg-slate-800');">
+            <input type="radio" name="txTypeR" value="income" ${(t&&t.type==='income')?'checked':''} onchange="document.getElementById('txType').value='income'" class="hidden"/>
+            <span class="text-emerald-400 font-semibold">↑ Receita</span>
+          </label>
+        </div>
+        <input id="txType" type="hidden" value="${t?.type||'expense'}"/>
+        <div>
+          <label class="text-xs text-slate-400">Descrição</label>
+          <input id="txDesc" type="text" value="${t?.description||''}" placeholder="Ex: Mercado, Salário..." class="w-full px-3 py-2 rounded-lg"/>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400">Valor (R$)</label>
+            <input id="txAmount" type="number" step="0.01" value="${t?.amount||''}" placeholder="0,00" class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Data</label>
+            <input id="txDate" type="date" value="${t?.date||today()}" class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Categoria</label>
+          <select id="txCat" class="w-full px-3 py-2 rounded-lg">
+            ${c.categories.map(cat=>`<option value="${cat.id}" ${t?.categoryId===cat.id?'selected':''}>${cat.icon} ${cat.name}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Conta/Carteira</label>
+          <select id="txAcc" class="w-full px-3 py-2 rounded-lg">
+            ${c.accounts.map(a=>`<option value="${a.id}" ${t?.accountId===a.id?'selected':''}>${a.name}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Observação (opcional)</label>
+          <textarea id="txNote" rows="2" class="w-full px-3 py-2 rounded-lg">${t?.note||''}</textarea>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button onclick="closeModal()" class="flex-1 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">Cancelar</button>
+          <button onclick="saveTx('${id||''}')" class="flex-1 btn gradient-bg text-white px-4 py-2.5 rounded-lg text-sm font-semibold">Salvar</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+function saveTx(id){
+  const c = currentCompany();
+  const data = {
+    description: document.getElementById('txDesc').value.trim(),
+    amount: parseFloat(document.getElementById('txAmount').value),
+    date: document.getElementById('txDate').value,
+    type: document.getElementById('txType').value,
+    categoryId: document.getElementById('txCat').value,
+    accountId: document.getElementById('txAcc').value,
+    note: document.getElementById('txNote').value.trim()
+  };
+  if(!data.description || !data.amount || data.amount<=0 || !data.date){ toast('Preencha todos os campos obrigatórios','warn'); return; }
+  
+  if(id){
+    const old = c.transactions.find(t=>t.id===id);
+    // reverse old
+    const oldAcc = c.accounts.find(a=>a.id===old.accountId);
+    if(oldAcc) oldAcc.balance += (old.type==='income'?-old.amount:old.amount);
+    Object.assign(old, data);
+    const newAcc = c.accounts.find(a=>a.id===data.accountId);
+    if(newAcc) newAcc.balance += (data.type==='income'?data.amount:-data.amount);
+  } else {
+    data.id = uid();
+    c.transactions.push(data);
+    const acc = c.accounts.find(a=>a.id===data.accountId);
+    if(acc) acc.balance += (data.type==='income'?data.amount:-data.amount);
+  }
+  saveDB();
+  closeModal();
+  toast('Transação salva!');
+  renderTransactions();
+}
+function deleteTx(id){
+  if(!confirm('Excluir esta transação?')) return;
+  const c = currentCompany();
+  const t = c.transactions.find(x=>x.id===id);
+  const acc = c.accounts.find(a=>a.id===t.accountId);
+  if(acc) acc.balance += (t.type==='income'?-t.amount:t.amount);
+  c.transactions = c.transactions.filter(x=>x.id!==id);
+  saveDB();
+  toast('Transação excluída');
+  renderTransactions();
+}
+
+/* ======================= CATEGORIES ======================= */
+function renderCategories(){
+  const c = currentCompany();
+  document.getElementById('pageContent').innerHTML = `
+    <div class="flex justify-between mb-5">
+      <p class="text-slate-400 text-sm">Organize suas receitas e despesas em categorias</p>
+      <button onclick="openCatModal()" class="btn gradient-bg text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Nova Categoria
+      </button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      ${c.categories.map(cat=>{
+        const total = c.transactions.filter(t=>t.categoryId===cat.id).reduce((s,t)=>s+t.amount,0);
+        return `<div class="glass rounded-2xl p-5 card-hover">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style="background:${cat.color}22">${cat.icon}</div>
+              <div>
+                <h4 class="font-bold">${cat.name}</h4>
+                <p class="text-xs text-slate-400">${cat.type==='income'?'Receita':'Despesa'}</p>
+              </div>
+            </div>
+            <div class="flex gap-1">
+              <button onclick="openCatModal('${cat.id}')" class="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-blue-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+              <button onclick="deleteCat('${cat.id}')" class="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-red-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg></button>
+            </div>
+          </div>
+          <div class="pt-3 border-t border-slate-800">
+            <p class="text-xs text-slate-400">Total movimentado</p>
+            <p class="text-lg font-bold" style="color:${cat.color}">${fmtBRL(total)}</p>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+function openCatModal(id){
+  const c = currentCompany();
+  const cat = id ? c.categories.find(x=>x.id===id) : null;
+  showModal(`
+    <div class="p-6">
+      <h3 class="text-xl font-bold mb-5">${cat?'Editar':'Nova'} Categoria</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-400">Nome</label>
+          <input id="catName" type="text" value="${cat?.name||''}" class="w-full px-3 py-2 rounded-lg"/>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Tipo</label>
+          <select id="catType" class="w-full px-3 py-2 rounded-lg">
+            <option value="expense" ${cat?.type==='expense'?'selected':''}>Despesa</option>
+            <option value="income" ${cat?.type==='income'?'selected':''}>Receita</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Ícone (emoji)</label>
+          <input id="catIcon" type="text" value="${cat?.icon||'📦'}" maxlength="2" class="w-full px-3 py-2 rounded-lg"/>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Cor</label>
+          <input id="catColor" type="color" value="${cat?.color||'#64748b'}" class="w-full h-10 rounded-lg cursor-pointer"/>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button onclick="closeModal()" class="flex-1 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">Cancelar</button>
+          <button onclick="saveCat('${id||''}')" class="flex-1 btn gradient-bg text-white px-4 py-2.5 rounded-lg text-sm font-semibold">Salvar</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+function saveCat(id){
+  const c = currentCompany();
+  const data = {
+    name: document.getElementById('catName').value.trim(),
+    type: document.getElementById('catType').value,
+    icon: document.getElementById('catIcon').value.trim()||'📦',
+    color: document.getElementById('catColor').value
+  };
+  if(!data.name){ toast('Nome obrigatório','warn'); return; }
+  if(id){ Object.assign(c.categories.find(x=>x.id===id), data); }
+  else { c.categories.push({id:uid(), ...data}); }
+  saveDB(); closeModal(); toast('Categoria salva!'); renderCategories();
+}
+function deleteCat(id){
+  if(!confirm('Excluir categoria? Transações existentes manterão o registro.')) return;
+  const c = currentCompany();
+  c.categories = c.categories.filter(x=>x.id!==id);
+  saveDB(); renderCategories();
+}
+
+/* ======================= CARDS ======================= */
+function renderCards(){
+  const c = currentCompany();
+  document.getElementById('pageContent').innerHTML = `
+    <div class="flex justify-between mb-5">
+      <p class="text-slate-400 text-sm">Controle seus cartões de crédito e faturas</p>
+      <button onclick="openCardModal()" class="btn gradient-bg text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Novo Cartão
+      </button>
+    </div>
+    ${c.cards.length===0 ? '<div class="glass rounded-2xl p-12 text-center text-slate-400"><p class="text-4xl mb-3">💳</p><p>Nenhum cartão cadastrado</p></div>' :
+    `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      ${c.cards.map(card=>{
+        const open = c.transactions.filter(t=>t.cardId===card.id && !t.paid).reduce((s,t)=>s+t.amount,0);
+        const limit = card.limit||0;
+        const available = limit - open;
+        const pct = limit>0 ? Math.min(100,(open/limit)*100) : 0;
+        return `<div class="glass rounded-2xl overflow-hidden card-hover">
+          <div class="p-5 text-white relative" style="background:linear-gradient(135deg,${card.color||'#3b82f6'},${card.color2||'#1e293b'})">
+            <div class="flex justify-between items-start mb-6">
+              <div class="text-xs opacity-70">Cartão de Crédito</div>
+              <div class="text-xs opacity-70">${card.flag||'💳'}</div>
+            </div>
+            <div class="text-lg font-bold mb-1">${card.name}</div>
+            <div class="text-xs opacity-80">Final ${card.last4||'••••'}</div>
+            <div class="flex justify-between mt-4 text-xs">
+              <div><p class="opacity-70">Disponível</p><p class="font-bold text-base">${fmtBRL(available)}</p></div>
+              <div class="text-right"><p class="opacity-70">Limite</p><p class="font-bold text-base">${fmtBRL(limit)}</p></div>
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="flex justify-between text-xs mb-2">
+              <span class="text-slate-400">Usado este mês</span>
+              <span class="font-bold ${pct>80?'text-red-400':pct>50?'text-yellow-400':'text-emerald-400'}">${fmtBRL(open)}</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:${pct}%; background:${pct>80?'#ef4444':pct>50?'#f59e0b':'#10b981'}"></div></div>
+            <div class="flex gap-2 mt-4">
+              <button onclick="openCardModal('${card.id}')" class="flex-1 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs">Editar</button>
+              <button onclick="viewCardTx('${card.id}')" class="flex-1 px-3 py-2 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 text-xs">Ver Fatura</button>
+              <button onclick="deleteCard('${card.id}')" class="px-3 py-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 text-xs">🗑</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`}
+  `;
+}
+function openCardModal(id){
+  const c = currentCompany();
+  const card = id ? c.cards.find(x=>x.id===id) : null;
+  showModal(`
+    <div class="p-6">
+      <h3 class="text-xl font-bold mb-5">${card?'Editar':'Novo'} Cartão</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-400">Nome do Cartão</label>
+          <input id="cardName" type="text" value="${card?.name||''}" placeholder="Ex: Nubank, Inter..." class="w-full px-3 py-2 rounded-lg"/>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400">Limite (R$)</label>
+            <input id="cardLimit" type="number" step="0.01" value="${card?.limit||''}" class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Final</label>
+            <input id="cardLast4" type="text" value="${card?.last4||''}" maxlength="4" placeholder="0000" class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400">Bandeira</label>
+            <select id="cardFlag" class="w-full px-3 py-2 rounded-lg">
+              <option ${card?.flag==='Visa'?'selected':''}>Visa</option>
+              <option ${card?.flag==='Mastercard'?'selected':''}>Mastercard</option>
+              <option ${card?.flag==='Elo'?'selected':''}>Elo</option>
+              <option ${card?.flag==='Hipercard'?'selected':''}>Hipercard</option>
+              <option ${card?.flag==='Nubank'?'selected':''}>Nubank</option>
+              <option ${card?.flag==='Inter'?'selected':''}>Inter</option>
+              <option ${card?.flag==='C6'?'selected':''}>C6</option>
+              <option ${card?.flag==='Outro'?'selected':''}>Outro</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Dia Vencimento</label>
+            <input id="cardDue" type="number" min="1" max="31" value="${card?.dueDay||10}" class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400">Cor 1</label>
+            <input id="cardColor1" type="color" value="${card?.color||'#3b82f6'}" class="w-full h-10 rounded-lg"/>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Cor 2</label>
+            <input id="cardColor2" type="color" value="${card?.color2||'#1e293b'}" class="w-full h-10 rounded-lg"/>
+          </div>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button onclick="closeModal()" class="flex-1 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">Cancelar</button>
+          <button onclick="saveCard('${id||''}')" class="flex-1 btn gradient-bg text-white px-4 py-2.5 rounded-lg text-sm font-semibold">Salvar</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+function saveCard(id){
+  const c = currentCompany();
+  const data = {
+    name: document.getElementById('cardName').value.trim(),
+    limit: parseFloat(document.getElementById('cardLimit').value)||0,
+    last4: document.getElementById('cardLast4').value.trim(),
+    flag: document.getElementById('cardFlag').value,
+    dueDay: parseInt(document.getElementById('cardDue').value)||10,
+    color: document.getElementById('cardColor1').value,
+    color2: document.getElementById('cardColor2').value
+  };
+  if(!data.name){ toast('Nome obrigatório','warn'); return; }
+  if(id){ Object.assign(c.cards.find(x=>x.id===id), data); }
+  else { c.cards.push({id:uid(), ...data}); }
+  saveDB(); closeModal(); toast('Cartão salvo!'); renderCards();
+}
+function deleteCard(id){
+  if(!confirm('Excluir cartão?')) return;
+  const c = currentCompany();
+  c.cards = c.cards.filter(x=>x.id!==id);
+  saveDB(); renderCards();
+}
+function viewCardTx(cardId){
+  const c = currentCompany();
+  const card = c.cards.find(x=>x.id===cardId);
+  const txs = c.transactions.filter(t=>t.cardId===cardId);
+  showModal(`
+    <div class="p-6">
+      <h3 class="text-xl font-bold mb-2">Fatura — ${card.name}</h3>
+      <p class="text-sm text-slate-400 mb-4">Vencimento dia ${card.dueDay}</p>
+      <div class="flex justify-between p-3 rounded-lg bg-slate-900/50 mb-4">
+        <span class="text-sm text-slate-400">Total aberto</span>
+        <span class="font-bold text-red-400">${fmtBRL(txs.filter(t=>!t.paid).reduce((s,t)=>s+t.amount,0))}</span>
+      </div>
+      <div class="space-y-2 max-h-80 overflow-y-auto scroll">
+        ${txs.length===0?'<p class="text-center text-slate-500 py-6">Nenhuma compra neste cartão</p>':
+        txs.map(t=>`<div class="flex items-center justify-between p-3 rounded-lg bg-slate-900/50">
+          <div>
+            <p class="text-sm font-medium">${t.description}</p>
+            <p class="text-xs text-slate-400">${formatDate(t.date)} ${t.paid?'<span class="text-emerald-400">✓ Pago</span>':''}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-sm text-red-400">${fmtBRL(t.amount)}</span>
+            <button onclick="togglePaid('${t.id}')" class="text-xs px-2 py-1 rounded ${t.paid?'bg-slate-700':'bg-emerald-500/20 text-emerald-400'}">${t.paid?'Desfazer':'Pagar'}</button>
+          </div>
+        </div>`).join('')}
+      </div>
+      <button onclick="closeModal()" class="w-full mt-4 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">Fechar</button>
+    </div>
+  `);
+}
+function togglePaid(id){
+  const c = currentCompany();
+  const t = c.transactions.find(x=>x.id===id);
+  t.paid = !t.paid;
+  saveDB();
+  viewCardTx(t.cardId);
+}
+
+/* ======================= ACCOUNTS ======================= */
+function renderAccounts(){
+  const c = currentCompany();
+  const total = c.accounts.reduce((s,a)=>s+a.balance,0);
+  document.getElementById('pageContent').innerHTML = `
+    <div class="glass rounded-2xl p-5 mb-5 gradient-bg">
+      <p class="text-sm opacity-80">Patrimônio Total (Contas)</p>
+      <p class="text-3xl font-bold mt-1">${fmtBRL(total)}</p>
+    </div>
+    <div class="flex justify-between mb-5">
+      <p class="text-slate-400 text-sm">Suas contas, carteiras e dinheiro</p>
+      <button onclick="openAccModal()" class="btn gradient-bg text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Nova Conta
+      </button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      ${c.accounts.map(a=>`
+        <div class="glass rounded-2xl p-5 card-hover">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style="background:${a.color}22">${a.type==='cash'?'💵':a.type==='savings'?'🏦':'💳'}</div>
+            <div>
+              <h4 class="font-bold">${a.name}</h4>
+              <p class="text-xs text-slate-400">${a.type==='cash'?'Dinheiro':a.type==='savings'?'Poupança':a.type==='checking'?'Conta Corrente':'Investimento'}</p>
+            </div>
+          </div>
+          <p class="text-2xl font-bold" style="color:${a.color}">${fmtBRL(a.balance)}</p>
+          <div class="flex gap-2 mt-4">
+            <button onclick="openAccModal('${a.id}')" class="flex-1 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs">Editar</button>
+            <button onclick="adjustBalance('${a.id}')" class="flex-1 px-3 py-2 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 text-xs">Ajustar</button>
+            <button onclick="deleteAcc('${a.id}')" class="px-3 py-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 text-xs">🗑</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+function openAccModal(id){
+  const c = currentCompany();
+  const a = id ? c.accounts.find(x=>x.id===id) : null;
+  showModal(`
+    <div class="p-6">
+      <h3 class="text-xl font-bold mb-5">${a?'Editar':'Nova'} Conta</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-400">Nome</label>
+          <input id="accName" type="text" value="${a?.name||''}" class="w-full px-3 py-2 rounded-lg"/>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Tipo</label>
+          <select id="accType" class="w-full px-3 py-2 rounded-lg">
+            <option value="checking" ${a?.type==='checking'?'selected':''}>Conta Corrente</option>
+            <option value="savings" ${a?.type==='savings'?'selected':''}>Poupança</option>
+            <option value="cash" ${a?.type==='cash'?'selected':''}>Dinheiro</option>
+            <option value="investment" ${a?.type==='investment'?'selected':''}>Investimento</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Saldo Atual (R$)</label>
+          <input id="accBalance" type="number" step="0.01" value="${a?.balance||0}" class="w-full px-3 py-2 rounded-lg"/>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Cor</label>
+          <input id="accColor" type="color" value="${a?.color||'#3b82f6'}" class="w-full h-10 rounded-lg"/>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button onclick="closeModal()" class="flex-1 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">Cancelar</button>
+          <button onclick="saveAcc('${id||''}')" class="flex-1 btn gradient-bg text-white px-4 py-2.5 rounded-lg text-sm font-semibold">Salvar</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+function saveAcc(id){
+  const c = currentCompany();
+  const data = {
+    name: document.getElementById('accName').value.trim(),
+    type: document.getElementById('accType').value,
+    balance: parseFloat(document.getElementById('accBalance').value)||0,
+    color: document.getElementById('accColor').value
+  };
+  if(!data.name){ toast('Nome obrigatório','warn'); return; }
+  if(id){ Object.assign(c.accounts.find(x=>x.id===id), data); }
+  else { c.accounts.push({id:uid(), ...data}); }
+  saveDB(); closeModal(); toast('Conta salva!'); renderAccounts();
+}
+function adjustBalance(id){
+  const v = prompt('Novo saldo (use valor com sinal para ajuste):');
+  if(v===null) return;
+  const c = currentCompany();
+  const a = c.accounts.find(x=>x.id===id);
+  a.balance = parseFloat(v)||0;
+  saveDB(); renderAccounts();
+}
+function deleteAcc(id){
+  if(!confirm('Excluir conta?')) return;
+  const c = currentCompany();
+  c.accounts = c.accounts.filter(x=>x.id!==id);
+  saveDB(); renderAccounts();
+}
+
+/* ======================= BUDGETS ======================= */
+function renderBudgets(){
+  const c = currentCompany();
+  const mk = monthKey(today());
+  document.getElementById('pageContent').innerHTML = `
+    <div class="flex justify-between mb-5">
+      <div>
+        <p class="text-slate-400 text-sm">Defina limites mensais por categoria</p>
+        <p class="text-xs text-slate-500 mt-1">Mês atual: ${new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}</p>
+      </div>
+      <button onclick="openBudgetModal()" class="btn gradient-bg text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Novo Orçamento
+      </button>
+    </div>
+    <div class="space-y-3">
+      ${c.budgets.length===0?'<div class="glass rounded-2xl p-12 text-center text-slate-400"><p class="text-4xl mb-3">📊</p><p>Nenhum orçamento definido</p></div>':
+      c.budgets.map(b=>{
+        const cat = c.categories.find(x=>x.id===b.categoryId);
+        const spent = c.transactions.filter(t=>t.categoryId===b.categoryId && monthKey(t.date)===mk && t.type==='expense').reduce((s,t)=>s+t.amount,0);
+        const pct = Math.min(100,(spent/b.amount)*100);
+        const color = pct>100?'#ef4444':pct>80?'#f59e0b':'#10b981';
+        return `<div class="glass rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl" style="background:${cat?.color||'#64748b'}22">${cat?.icon||'📦'}</div>
+              <div>
+                <h4 class="font-bold">${cat?.name||'Categoria'}</h4>
+                <p class="text-xs text-slate-400">${fmtBRL(spent)} de ${fmtBRL(b.amount)}</p>
+              </div>
+            </div>
+            <div class="flex gap-1">
+              <button onclick="openBudgetModal('${b.id}')" class="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-blue-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+              <button onclick="deleteBudget('${b.id}')" class="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-red-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg></button>
+            </div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%; background:${color}"></div></div>
+          <div class="flex justify-between mt-2 text-xs">
+            <span style="color:${color}">${pct.toFixed(0)}% utilizado</span>
+            <span class="text-slate-400">${pct>100?'⚠ Excedido em '+fmtBRL(spent-b.amount):'Restam '+fmtBRL(b.amount-spent)}</span>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+function openBudgetModal(id){
+  const c = currentCompany();
+  const b = id ? c.budgets.find(x=>x.id===id) : null;
+  showModal(`
+    <div class="p-6">
+      <h3 class="text-xl font-bold mb-5">${b?'Editar':'Novo'} Orçamento</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-400">Categoria (despesa)</label>
+          <select id="budCat" class="w-full px-3 py-2 rounded-lg">
+            ${c.categories.filter(x=>x.type==='expense').map(cat=>`<option value="${cat.id}" ${b?.categoryId===cat.id?'selected':''}>${cat.icon} ${cat.name}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Limite Mensal (R$)</label>
+          <input id="budAmount" type="number" step="0.01" value="${b?.amount||''}" class="w-full px-3 py-2 rounded-lg"/>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button onclick="closeModal()" class="flex-1 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">Cancelar</button>
+          <button onclick="saveBudget('${id||''}')" class="flex-1 btn gradient-bg text-white px-4 py-2.5 rounded-lg text-sm font-semibold">Salvar</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+function saveBudget(id){
+  const c = currentCompany();
+  const data = {
+    categoryId: document.getElementById('budCat').value,
+    amount: parseFloat(document.getElementById('budAmount').value)
+  };
+  if(!data.amount || data.amount<=0){ toast('Valor inválido','warn'); return; }
+  if(id){ Object.assign(c.budgets.find(x=>x.id===id), data); }
+  else { c.budgets.push({id:uid(), ...data}); }
+  saveDB(); closeModal(); toast('Orçamento salvo!'); renderBudgets();
+}
+function deleteBudget(id){
+  if(!confirm('Excluir orçamento?')) return;
+  const c = currentCompany();
+  c.budgets = c.budgets.filter(x=>x.id!==id);
+  saveDB(); renderBudgets();
+}
+
+/* ======================= REPORTS ======================= */
+function renderReports(){
+  const c = currentCompany();
+  document.getElementById('pageContent').innerHTML = `
+    <div class="flex flex-wrap gap-3 mb-5">
+      <select id="repPeriod" class="px-3 py-2 rounded-lg text-sm" onchange="renderReportContent()">
+        <option value="month">Este Mês</option>
+        <option value="last3">Últimos 3 Meses</option>
+        <option value="last6">Últimos 6 Meses</option>
+        <option value="year">Este Ano</option>
+        <option value="all">Tudo</option>
+      </select>
+      <button onclick="printReport()" class="btn gradient-bg text-white px-4 py-2 rounded-lg text-sm font-semibold">🖨 Imprimir</button>
+    </div>
+    <div id="reportContent"></div>
+  `;
+  renderReportContent();
+}
+function renderReportContent(){
+  const c = currentCompany();
+  const period = document.getElementById('repPeriod').value;
+  const now = new Date();
+  let txs = [...c.transactions];
+  if(period==='month') txs = txs.filter(t=>monthKey(t.date)===monthKey(today()));
+  else if(period==='last3' || period==='last6'){
+    const months = period==='last3'?3:6;
+    const cutoff = new Date(now.getFullYear(), now.getMonth()-months, 1);
+    txs = txs.filter(t=>new Date(t.date)>=cutoff);
+  } else if(period==='year') txs = txs.filter(t=>new Date(t.date).getFullYear()===now.getFullYear());
+  
+  const income = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const expense = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const balance = income - expense;
+  const savingsRate = income>0 ? ((income-expense)/income*100) : 0;
+
+  const catExp = {};
+  txs.filter(t=>t.type==='expense').forEach(t=>{
+    const cat = c.categories.find(x=>x.id===t.categoryId);
+    const name = cat?.name||'Outros';
+    catExp[name] = (catExp[name]||0) + t.amount;
+  });
+
+  const accBal = {};
+  c.accounts.forEach(a=>accBal[a.name]=a.balance);
+
+  document.getElementById('reportContent').innerHTML = `
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5">
+      ${statCard('Receitas', fmtBRL(income), 'text-emerald-400', 'bg-emerald-500/10', '↑')}
+      ${statCard('Despesas', fmtBRL(expense), 'text-red-400', 'bg-red-500/10', '↓')}
+      ${statCard('Saldo', fmtBRL(balance), balance>=0?'text-emerald-400':'text-red-400', balance>=0?'bg-emerald-500/10':'bg-red-500/10', balance>=0?'✓':'⚠')}
+      ${statCard('Taxa de Poupança', savingsRate.toFixed(1)+'%', savingsRate>=20?'text-emerald-400':savingsRate>=0?'text-yellow-400':'text-red-400', savingsRate>=20?'bg-emerald-500/10':savingsRate>=0?'bg-yellow-500/10':'bg-red-500/10', '%')}
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="font-bold mb-4">Despesas por Categoria</h3>
+        <div style="height:300px;"><canvas id="repChart1"></canvas></div>
+      </div>
+      <div class="glass rounded-2xl p-5">
+        <h3 class="font-bold mb-4">Patrimônio por Conta</h3>
+        <div style="height:300px;"><canvas id="repChart2"></canvas></div>
+      </div>
+    </div>
+    <div class="glass rounded-2xl p-5">
+      <h3 class="font-bold mb-4">Detalhamento por Categoria</h3>
+      <div class="space-y-2">
+        ${Object.entries(catExp).sort((a,b)=>b[1]-a[1]).map(([name,val])=>{
+          const cat = c.categories.find(x=>x.name===name);
+          const pct = expense>0?(val/expense*100):0;
+          return `<div>
+            <div class="flex justify-between text-sm mb-1">
+              <span>${cat?.icon||'•'} ${name}</span>
+              <span class="font-bold">${fmtBRL(val)} <span class="text-slate-400 text-xs">(${pct.toFixed(1)}%)</span></span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:${pct}%; background:${cat?.color||'#64748b'}"></div></div>
+          </div>`;
+        }).join('') || '<p class="text-center text-slate-500 py-6">Sem despesas no período</p>'}
+      </div>
+    </div>
+  `;
+  setTimeout(()=>{
+    destroyChart('repChart1');
+    destroyChart('repChart2');
+    const labels = Object.keys(catExp);
+    if(labels.length>0){
+      charts.repChart1 = new Chart(document.getElementById('repChart1'),{
+        type:'pie',
+        data:{labels, datasets:[{data:Object.values(catExp), backgroundColor:labels.map(n=>c.categories.find(x=>x.name===n)?.color||'#64748b'), borderWidth:0}]},
+        options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right', labels:{color:'#94a3b8', boxWidth:10, font:{size:10}}}}}
+      });
+    }
+    const accLabels = Object.keys(accBal);
+    if(accLabels.length>0){
+      charts.repChart2 = new Chart(document.getElementById('repChart2'),{
+        type:'bar',
+        data:{labels:accLabels, datasets:[{label:'Saldo', data:Object.values(accBal), backgroundColor:'#10b981', borderRadius:8}]},
+        options:{...chartOpts(), plugins:{legend:{display:false}}}
+      });
+    }
+  },50);
+}
+function printReport(){ window.print(); }
+
+/* ======================= HELP ======================= */
+function renderHelp(){
+  document.getElementById('pageContent').innerHTML = `
+    <div class="glass rounded-2xl p-6 mb-5 gradient-bg">
+      <h2 class="text-2xl font-bold mb-2">📚 Educação Financeira</h2>
+      <p class="text-sm opacity-90">Um guia completo para quem está começando do zero e quer sair do buraco. Baseado nos melhores livros de educação financeira do mundo.</p>
+    </div>
+
+    <div class="space-y-4">
+      ${helpSection('🧗 A Escada da Liberdade Financeira', `
+        <p class="mb-3">A ordem correta para organizar sua vida financeira:</p>
+        <ol class="space-y-2 text-sm">
+          <li><strong class="text-emerald-400">1. PARAR O SANGRAMENTO</strong> — Pare de criar novas dívidas</li>
+          <li><strong class="text-emerald-400">2. SABER PARA ONDE VAI CADA CENTAVO</strong> — Registre tudo</li>
+          <li><strong class="text-emerald-400">3. CONTROLAR AS DÍVIDAS</strong> — Comece pelas mais caras</li>
+          <li><strong class="text-emerald-400">4. CRIAR SOBRA MENSAL</strong> — Gaste menos do que ganha</li>
+          <li><strong class="text-emerald-400">5. MONTAR RESERVA</strong> — 3 a 6 meses de despesas</li>
+          <li><strong class="text-emerald-400">6. INVESTIR</strong> — Só depois da reserva</li>
+          <li><strong class="text-emerald-400">7. CONSTRUIR PATRIMÔNIO</strong> — Longo prazo</li>
+        </ol>
+      `)}
+      ${helpSection('💵 A Regra 50/30/20', `
+        <p class="mb-3">Divida sua renda líquida assim:</p>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30">
+            <p class="text-2xl font-bold text-blue-400">50%</p>
+            <p class="text-xs">Necessidades (aluguel, comida, contas)</p>
+          </div>
+          <div class="p-3 rounded-lg bg-purple-500/10 border border-purple-500/30">
+            <p class="text-2xl font-bold text-purple-400">30%</p>
+            <p class="text-xs">Desejos (lazer, streaming, delivery)</p>
+          </div>
+          <div class="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+            <p class="text-2xl font-bold text-emerald-400">20%</p>
+            <p class="text-xs">Poupar, investir, quitar dívidas</p>
+          </div>
+        </div>
+      `)}
+      ${helpSection('💳 Cartão de Crédito NÃO é dinheiro', `
+        <p class="mb-3">Se seu cartão tem R$ 5.000 de limite, você NÃO tem R$ 5.000. Você tem R$ 5.000 de <strong class="text-red-400">capacidade de dívida</strong>.</p>
+        <p class="text-sm">Se você recebe R$ 3.000 e tem R$ 2.500 de fatura, sobram apenas R$ 500 para o resto do mês. Pense sempre assim.</p>
+      `)}
+      ${helpSection('🧯 Priorize as dívidas mais caras', `
+        <p class="mb-3">Ordem de perigo:</p>
+        <ul class="space-y-1 text-sm">
+          <li>🔴 <strong>Rotativo do cartão</strong> — juros absurdos (300%+ ao ano)</li>
+          <li>🔴 <strong>Cheque especial</strong> — muito caro</li>
+          <li>🟡 <strong>Empréstimo pessoal</strong> — preocupante</li>
+          <li>🟢 <strong>Financiamento com juros baixos</strong> — controlado</li>
+        </ul>
+        <p class="mt-3 text-sm">Quitar uma dívida cara pode ser o MELHOR "investimento" que você fará.</p>
+      `)}
+      ${helpSection('🏦 Reserva de Emergência', `
+        <p class="mb-3">Antes de investir em qualquer coisa, construa proteção:</p>
+        <ul class="space-y-1 text-sm">
+          <li>• Comece com <strong>R$ 100 a R$ 1.000</strong> (reserva mínima)</li>
+          <li>• Evolua para <strong>1 mês</strong> de despesas</li>
+          <li>• Objetivo final: <strong>3 a 6 meses</strong> de despesas</li>
+          <li>• Guarde em <strong>Tesouro Selic ou CDB com liquidez diária</strong></li>
+        </ul>
+        <p class="mt-3 text-sm">Reserva não é investimento — é <strong>tranquilidade</strong>.</p>
+      `)}
+      ${helpSection('🧠 Os 10 Mandamentos dos Ricos (livros clássicos)', `
+        <ol class="space-y-1 text-sm list-decimal list-inside">
+          <li>Ganhe mais (aumente sua renda)</li>
+          <li>Gaste menos do que ganha</li>
+          <li>Não financie aparência</li>
+          <li>Elimine dívidas de juros altos</li>
+          <li>Guarde dinheiro automaticamente ("pague-se primeiro")</li>
+          <li>Construa uma reserva</li>
+          <li>Compre ativos (coisas que colocam dinheiro no bolso)</li>
+          <li>Reinvista os rendimentos</li>
+          <li>Aprenda continuamente</li>
+          <li>Tenha paciência — riqueza leva tempo</li>
+        </ol>
+        <p class="mt-3 text-xs text-slate-400">Baseado em: Pai Rico Pai Pobre, O Homem Mais Rico da Babilônia, O Milionário Mora ao Lado, A Psicologia Financeira, etc.</p>
+      `)}
+      ${helpSection('🎯 Desafio de 30 dias', `
+        <p class="mb-3">Se você quer mudar de vida, faça isso:</p>
+        <ol class="space-y-1 text-sm list-decimal list-inside">
+          <li>Anote TUDO que gastar por 30 dias (até R$ 5)</li>
+          <li>Não faça compras parceladas novas</li>
+          <li>Não aumente sua dívida</li>
+          <li>Cancele pelo menos uma despesa inútil</li>
+          <li>Descubra todas as suas dívidas (valor, parcela, juros, vencimento)</li>
+          <li>Descubra sua renda média real</li>
+          <li>Calcule quanto sobra ou falta</li>
+        </ol>
+      `)}
+      ${helpSection('💡 Frase para memorizar', `
+        <div class="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-blue-500/10 border border-emerald-500/20">
+          <p class="text-lg italic">"Você não precisa ficar rico para organizar sua vida financeira. Primeiro pare de perder dinheiro. Depois aprenda a guardar. Depois aprenda a multiplicar. E finalmente aprenda a proteger o que construiu."</p>
+        </div>
+      `)}
+    </div>
+  `;
+}
+function helpSection(title, content){
+  return `<details class="glass rounded-2xl overflow-hidden">
+    <summary class="p-5 cursor-pointer hover:bg-slate-800/50 font-bold flex items-center justify-between">
+      <span>${title}</span>
+      <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+    </summary>
+    <div class="p-5 pt-0 text-sm text-slate-300 leading-relaxed">${content}</div>
+  </details>`;
+}
+
+/* ======================= SETTINGS ======================= */
+function renderSettings(){
+  const c = currentCompany();
+  document.getElementById('pageContent').innerHTML = `
+    <div class="space-y-5">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="font-bold mb-4">🏢 Dados da Empresa</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400">Nome da Empresa</label>
+            <input id="setName" type="text" value="${c.name}" class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Usuário</label>
+            <input id="setUser" type="text" value="${c.user}" class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Nova Senha (deixe vazio para manter)</label>
+            <input id="setPass" type="password" placeholder="••••••••" class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+          <div class="flex items-end">
+            <button onclick="saveSettings()" class="btn gradient-bg text-white px-4 py-2 rounded-lg text-sm font-semibold">Salvar Alterações</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-5">
+        <h3 class="font-bold mb-4">💾 Backup dos Dados</h3>
+        <p class="text-sm text-slate-400 mb-4">Exporte todos os dados da empresa em JSON para backup ou migração.</p>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="exportData()" class="btn gradient-bg text-white px-4 py-2 rounded-lg text-sm font-semibold">📥 Exportar JSON</button>
+          <label class="btn bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer">
+            📤 Importar JSON
+            <input type="file" accept=".json" onchange="importData(event)" class="hidden"/>
+          </label>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-5">
+        <h3 class="font-bold mb-4">🎲 Dados de Demonstração</h3>
+        <p class="text-sm text-slate-400 mb-4">Carregue dados fictícios para testar o sistema (transações, categorias, cartões).</p>
+        <button onclick="loadSeeders()" class="btn bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">🎲 Carregar Dados Demo</button>
+      </div>
+
+      <div class="glass rounded-2xl p-5 border border-red-500/30">
+        <h3 class="font-bold mb-4 text-red-400">⚠️ Zona de Perigo</h3>
+        <p class="text-sm text-slate-400 mb-4">Ações irreversíveis. Faça backup antes!</p>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="resetData()" class="btn bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 px-4 py-2 rounded-lg text-sm font-semibold">🗑 Zerar Todos os Dados</button>
+          <button onclick="deleteCompany()" class="btn bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">💣 Excluir Empresa</button>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-5">
+        <h3 class="font-bold mb-4">ℹ️ Sobre</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="text-slate-400">Nome:</span><span class="font-semibold">FinControl AI</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Versão:</span><span class="font-semibold">0.1</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Autor:</span><span class="font-semibold">Walney Moreira Klein</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Contato:</span><span class="font-semibold">walneyk@hotmail.com</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Licença:</span><span class="font-semibold">Presente da IA para os seres humanos 💚</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Empresa criada em:</span><span class="font-semibold">${formatDate(c.createdAt)}</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Total de transações:</span><span class="font-semibold">${c.transactions.length}</span></div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function saveSettings(){
+  const c = currentCompany();
+  c.name = document.getElementById('setName').value.trim()||c.name;
+  c.user = document.getElementById('setUser').value.trim()||c.user;
+  const pass = document.getElementById('setPass').value;
+  if(pass) c.password = pass;
+  saveDB();
+  document.getElementById('currentCompany').textContent = c.name;
+  toast('Configurações salvas!');
+}
+function exportData(){
+  const c = currentCompany();
+  const data = JSON.stringify(c, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `fincontrol_${c.name.replace(/\s/g,'_')}_${today()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Dados exportados!');
+}
+function importData(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if(!data.transactions || !data.categories) throw new Error('Formato inválido');
+      if(!confirm('Isso substituirá TODOS os dados atuais. Continuar?')) return;
+      const c = currentCompany();
+      Object.assign(c, data);
+      c.id = currentCompanyId;
+      saveDB();
+      toast('Dados importados!');
+      renderSettings();
+    } catch(err){ toast('Erro ao importar: '+err.message,'danger'); }
+  };
+  reader.readAsText(file);
+}
+function resetData(){
+  if(!confirm('ZERAR todos os dados? Esta ação não pode ser desfeita!')) return;
+  if(!confirm('Tem CERTEZA ABSOLUTA? Tudo será apagado.')) return;
+  const c = currentCompany();
+  c.transactions = [];
+  c.cards = [];
+  c.budgets = [];
+  c.accounts = defaultAccounts();
+  c.categories = defaultCategories();
+  saveDB();
+  toast('Dados zerados!');
+  renderSettings();
+}
+function deleteCompany(){
+  if(!confirm('EXCLUIR esta empresa permanentemente?')) return;
+  if(!confirm('ÚLTIMA CHANCE. Todos os dados serão perdidos.')) return;
+  delete db.companies[currentCompanyId];
+  saveDB();
+  doLogout();
+  toast('Empresa excluída');
+}
+function loadSeeders(){
+  if(!confirm('Carregar dados de demonstração? Dados atuais serão mantidos.')) return;
+  const c = currentCompany();
+  const now = new Date();
+  const cats = c.categories;
+  const accs = c.accounts;
+  const catMap = {sal:cats.find(x=>x.name==='Salário')?.id, ali:cats.find(x=>x.name==='Alimentação')?.id, mor:cats.find(x=>x.name==='Moradia')?.id, tra:cats.find(x=>x.name==='Transporte')?.id, sau:cats.find(x=>x.name==='Saúde')?.id, laz:cats.find(x=>x.name==='Lazer')?.id, edu:cats.find(x=>x.name==='Educação')?.id, inv:cats.find(x=>x.name==='Investimentos')?.id, out:cats.find(x=>x.name==='Outros')?.id};
+  
+  // add card if none
+  if(c.cards.length===0){
+    c.cards.push({id:uid(), name:'Nubank', limit:5000, last4:'1234', flag:'Nubank', dueDay:10, color:'#8b5cf6', color2:'#1e293b'});
+  }
+  const cardId = c.cards[0].id;
+  
+  const demoTx = [
+    {type:'income', description:'Salário', amount:4500, categoryId:catMap.sal, accountId:accs[0].id, daysAgo:25},
+    {type:'income', description:'Freelance design', amount:800, categoryId:catMap.sal, accountId:accs[0].id, daysAgo:15},
+    {type:'expense', description:'Aluguel', amount:1200, categoryId:catMap.mor, accountId:accs[0].id, daysAgo:24},
+    {type:'expense', description:'Conta de luz', amount:180, categoryId:catMap.mor, accountId:accs[0].id, daysAgo:20},
+    {type:'expense', description:'Internet', amount:100, categoryId:catMap.mor, accountId:accs[0].id, daysAgo:18},
+    {type:'expense', description:'Mercado - mensal', amount:750, categoryId:catMap.ali, accountId:accs[0].id, daysAgo:22},
+    {type:'expense', description:'Mercado - reposição', amount:220, categoryId:catMap.ali, accountId:accs[0].id, daysAgo:10},
+    {type:'expense', description:'iFood', amount:85, categoryId:catMap.ali, accountId:cardId, daysAgo:5, cardId},
+    {type:'expense', description:'Uber', amount:45, categoryId:catMap.tra, accountId:cardId, daysAgo:8, cardId},
+    {type:'expense', description:'Gasolina', amount:250, categoryId:catMap.tra, accountId:accs[0].id, daysAgo:12},
+    {type:'expense', description:'Farmácia', amount:95, categoryId:catMap.sau, accountId:cardId, daysAgo:14, cardId},
+    {type:'expense', description:'Cinema', amount:70, categoryId:catMap.laz, accountId:cardId, daysAgo:7, cardId},
+    {type:'expense', description:'Netflix', amount:39.90, categoryId:catMap.laz, accountId:cardId, daysAgo:23, cardId},
+    {type:'expense', description:'Spotify', amount:21.90, categoryId:catMap.laz, accountId:cardId, daysAgo:23, cardId},
+    {type:'expense', description:'Curso online', amount:150, categoryId:catMap.edu, accountId:cardId, daysAgo:16, cardId},
+    {type:'income', description:'Dividendos FIIs', amount:180, categoryId:catMap.inv, accountId:accs[1].id, daysAgo:13},
+    {type:'expense', description:'Presente', amount:120, categoryId:catMap.out, accountId:cardId, daysAgo:9, cardId}
+  ];
+  demoTx.forEach(t=>{
+    const d = new Date(); d.setDate(d.getDate()-t.daysAgo);
+    c.transactions.push({
+      id:uid(), type:t.type, description:t.description, amount:t.amount,
+      categoryId:t.categoryId, accountId:t.accountId, cardId:t.cardId||null,
+      date:d.toISOString().slice(0,10), note:'', paid:false
+    });
+  });
+  // adjust balances
+  accs[0].balance = 3200; accs[1].balance = 5400; accs[2].balance = 350;
+  saveDB();
+  toast('Dados demo carregados!');
+  renderSettings();
+}
+
+/* ======================= UTIL ======================= */
+function showModal(html){
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modal').classList.remove('hidden');
+}
+function closeModal(){ document.getElementById('modal').classList.add('hidden'); }
+document.getElementById('modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
+
+function toast(msg, type='success'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'fixed bottom-6 right-6 z-50 glass rounded-xl px-5 py-3 shadow-2xl border-l-4';
+  t.className += type==='danger'?' border-red-500':type==='warn'?' border-yellow-500':' border-emerald-500';
+  t.classList.remove('hidden');
+  setTimeout(()=>t.classList.add('hidden'), 3000);
+}
+
+/* INIT */
+renderCompanyList();
+// mobile sidebar default
+if(window.innerWidth<768) document.getElementById('sidebar').classList.add('-translate-x-full');
+</script>
+</body>
+</html>
