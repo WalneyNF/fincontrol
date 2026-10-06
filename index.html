@@ -4,8 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>FinControl AI — Controle Financeiro Pessoal</title>
+<!-- TailwindCSS via CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
+<!-- Chart.js para gráficos -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- Fontes via fontsource (não usar Google Fonts) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.0/index.css">
 <style>
@@ -38,14 +41,23 @@
   .pulse-dot{width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 0 0 rgba(16,185,129,.7); animation:pulse 2s infinite;}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(16,185,129,.7);} 70%{box-shadow:0 0 0 10px rgba(16,185,129,0);} 100%{box-shadow:0 0 0 0 rgba(16,185,129,0);}}
   .hero-glow{position:absolute; width:500px; height:500px; border-radius:50%; filter:blur(120px); opacity:.3;}
-  .tab-active{background:linear-gradient(135deg,#10b981,#059669); color:white;}
   .progress-bar{height:8px; border-radius:4px; background:#1f2937; overflow:hidden;}
   .progress-fill{height:100%; transition:width .5s ease;}
+  .social-btn{transition:all .2s ease;}
+  .social-btn:hover{transform:scale(1.05);}
+  .tab-filter{padding:6px 12px; border-radius:8px; font-size:12px; cursor:pointer; background:#1f2937; color:#94a3b8; transition:all .15s;}
+  .tab-filter.active{background:linear-gradient(135deg,#10b981,#059669); color:white;}
+  .code-comment{color:#64748b; font-family:monospace; font-size:11px;}
+  /* Sidebar colapsa em mobile */
+  @media(max-width:767px){
+    #sidebar{transform:translateX(-100%); transition:transform .3s;}
+    #sidebar.open{transform:translateX(0);}
+  }
 </style>
 </head>
 <body class="min-h-screen">
 
-<!-- LOGIN SCREEN -->
+<!-- ========================= TELA DE LOGIN ========================= -->
 <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
   <div class="hero-glow gradient-bg" style="top:-100px; left:-100px;"></div>
   <div class="hero-glow" style="bottom:-100px; right:-100px; background:#8b5cf6;"></div>
@@ -87,7 +99,7 @@
   </div>
 </div>
 
-<!-- APP SCREEN -->
+<!-- ========================= APP PRINCIPAL ========================= -->
 <div id="appScreen" class="hidden min-h-screen flex">
   <!-- SIDEBAR -->
   <aside id="sidebar" class="w-64 glass border-r border-slate-800 flex flex-col fixed md:relative h-screen z-30">
@@ -103,6 +115,7 @@
       </div>
     </div>
 
+    <!-- Navegação principal -->
     <nav class="flex-1 p-3 space-y-1 overflow-y-auto scroll">
       <a onclick="navigate('dashboard')" class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="dashboard">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
@@ -124,13 +137,38 @@
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
         Contas / Carteiras
       </a>
+      <!-- NOVO: Caixinhas (tipo Nubank) -->
+      <a onclick="navigate('piggybanks')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="piggybanks">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+        Caixinhas
+      </a>
+      <!-- NOVO: Investimentos -->
+      <a onclick="navigate('investments')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="investments">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        Investimentos
+      </a>
+      <!-- NOVO: Contas a Pagar/Receber -->
+      <a onclick="navigate('bills')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="bills">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Pagar / Receber
+      </a>
       <a onclick="navigate('budgets')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="budgets">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         Orçamentos
       </a>
+      <!-- NOVO: DRE / Fluxo de Caixa -->
+      <a onclick="navigate('dre')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="dre">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a2 2 0 012-2h2a2 2 0 012 2v2m-6 0h6m-9 4h12a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+        DRE / Fluxo Caixa
+      </a>
       <a onclick="navigate('reports')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="reports">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
         Relatórios
+      </a>
+      <!-- NOVO: Divulgação -->
+      <a onclick="navigate('share')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="share">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+        Divulgar
       </a>
       <a onclick="navigate('help')" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer text-sm" data-page="help">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
@@ -173,43 +211,113 @@
   </main>
 </div>
 
-<!-- MODAL -->
+<!-- MODAL genérico -->
 <div id="modal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
   <div class="glass rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto scroll" id="modalContent"></div>
 </div>
 
-<!-- TOAST -->
+<!-- TOAST de notificações -->
 <div id="toast" class="hidden fixed bottom-6 right-6 z-50 glass rounded-xl px-5 py-3 shadow-2xl border-l-4 border-emerald-500"></div>
 
 <script>
-/* ======================= STATE ======================= */
+/* ==========================================================================
+   FinControl AI — Versão 0.1
+   Autor: Walney Moreira Klein (walneyk@hotmail.com)
+   Licença: Uso gratuito. Código visível para estudo (não open-source).
+   
+   ARQUITETURA PREPARADA PARA MIGRAÇÃO FUTURA PARA PHP + MySQL:
+   ---------------------------------------------------------------
+   Toda persistência de dados passa pela camada "DataLayer" (abaixo).
+   Atualmente ela usa localStorage. Para migrar para PHP/MySQL, basta
+   substituir os métodos loadDB/saveDB por chamadas fetch() a uma API
+   REST (ex: /api/company, /api/transactions etc). A estrutura JSON
+   já espelha o que seriam as tabelas do banco:
+     - companies  (id, name, user, password, created_at)
+     - categories (id, company_id, name, type, color, icon)
+     - accounts   (id, company_id, name, type, balance, color)
+     - cards      (id, company_id, name, limit, last4, flag, due_day, color, color2)
+     - transactions (id, company_id, type, description, amount, date, category_id, account_id, card_id, note)
+     - budgets    (id, company_id, category_id, amount)
+     - piggybanks (id, company_id, name, goal, color, icon)
+     - piggybank_movements (id, piggybank_id, type, amount, date, note)
+     - investments (id, company_id, type, name, ticker, quantity, buy_price, current_price, buy_date, broker, notes)
+     - bills      (id, company_id, type, description, amount, due_date, status, category_id, account_id, contact)
+   ========================================================================== */
+
+/* ========================= CONFIGURAÇÕES GLOBAIS ========================= */
+const APP_VERSION = '0.1';
+const APP_URL = 'https://walneynf.github.io/fincontrol/';
+const APP_AUTHOR = 'Walney Moreira Klein';
+const APP_EMAIL = 'walneyk@hotmail.com';
 const DB_KEY = 'fincontrol_db_v1';
+
+/* ========================= ESTADO GLOBAL ========================= */
 let db = loadDB();
 let currentCompanyId = null;
 let currentPage = 'dashboard';
-let charts = {};
+let charts = {}; // cache de instâncias Chart.js para destruir antes de recriar
 
+/* ==========================================================================
+   CAMADA DE DADOS (DataLayer)
+   -------------------------------------------------------------------------
+   Esta camada abstrai o armazenamento. Hoje usa localStorage.
+   Para migrar para PHP/MySQL, basta trocar estas funções por chamadas
+   à sua API REST. Exemplo:
+     async function loadDB(){ return await fetch('/api/db').then(r=>r.json()); }
+     async function saveDB(){ await fetch('/api/db',{method:'POST',body:JSON.stringify(db)}); }
+   ========================================================================== */
+
+/**
+ * Carrega o banco completo do localStorage.
+ * @returns {Object} Objeto com todas as empresas e seus dados.
+ */
 function loadDB(){
   const raw = localStorage.getItem(DB_KEY);
   if(raw) return JSON.parse(raw);
   return { companies: {} };
 }
+
+/**
+ * Persiste o banco completo no localStorage.
+ * Em produção PHP, isso viraria um POST para /api/db.
+ */
 function saveDB(){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+
+/**
+ * Retorna a empresa atualmente logada.
+ */
 function currentCompany(){ return db.companies[currentCompanyId]; }
 
+/* ========================= UTILITÁRIOS ========================= */
+
+/** Gera um ID único (em PHP seria auto_increment do MySQL). */
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+/** Formata valor em Real brasileiro. */
 function fmtBRL(v){ return (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+
+/** Retorna a data de hoje no formato YYYY-MM-DD. */
 function today(){ return new Date().toISOString().slice(0,10); }
+
+/** Extrai o ano-mês (YYYY-MM) de uma data string. */
 function monthKey(d){ return d.slice(0,7); }
 
-/* ======================= AUTH ======================= */
+/** Formata data YYYY-MM-DD para dd/mm/aaaa. */
+function formatDate(d){ return new Date(d+'T00:00').toLocaleDateString('pt-BR'); }
+
+/* ========================= AUTENTICAÇÃO ========================= */
+
+/**
+ * Realiza login ou cria nova empresa.
+ * Valida campos, verifica senha, e inicializa o estado da sessão.
+ */
 function doLogin(){
   const company = document.getElementById('loginCompany').value.trim();
   const user = document.getElementById('loginUser').value.trim();
   const pass = document.getElementById('loginPass').value;
   if(!company || !user || !pass){ toast('Preencha todos os campos','warn'); return; }
   
-  // find existing
+  // Busca empresa existente pelo nome (case-insensitive)
   const existing = Object.values(db.companies).find(c => c.name.toLowerCase()===company.toLowerCase());
   if(existing){
     if(existing.password !== pass){ toast('Senha incorreta','danger'); return; }
@@ -222,12 +330,19 @@ function doLogin(){
   }
   showApp();
 }
+
+/** Faz logout e volta para a tela de login. */
 function doLogout(){
   currentCompanyId = null;
   document.getElementById('appScreen').classList.add('hidden');
   document.getElementById('loginScreen').classList.remove('hidden');
   renderCompanyList();
 }
+
+/**
+ * Cria uma empresa nova com dados padrão (categorias, contas).
+ * Em PHP isso seria um INSERT em companies + inserts em categorias default.
+ */
 function createEmptyCompany(id, name, user, pass){
   return {
     id, name, user, password: pass, createdAt: today(),
@@ -235,9 +350,14 @@ function createEmptyCompany(id, name, user, pass){
     accounts: defaultAccounts(),
     cards: [],
     transactions: [],
-    budgets: []
+    budgets: [],
+    piggybanks: [],        // NOVO: Caixinhas
+    investments: [],       // NOVO: Investimentos
+    bills: []              // NOVO: Contas a pagar/receber
   };
 }
+
+/** Categorias padrão iniciais (seriam seeders no banco). */
 function defaultCategories(){
   return [
     {id:uid(), name:'Salário', type:'income', color:'#10b981', icon:'💰'},
@@ -251,6 +371,8 @@ function defaultCategories(){
     {id:uid(), name:'Outros', type:'expense', color:'#64748b', icon:'📦'}
   ];
 }
+
+/** Contas padrão iniciais. */
 function defaultAccounts(){
   return [
     {id:uid(), name:'Conta Corrente', type:'checking', balance:0, color:'#3b82f6'},
@@ -258,12 +380,16 @@ function defaultAccounts(){
     {id:uid(), name:'Dinheiro', type:'cash', balance:0, color:'#f59e0b'}
   ];
 }
+
+/** Renderiza a lista de empresas já criadas na tela de login. */
 function renderCompanyList(){
   const list = document.getElementById('companyList');
   const companies = Object.values(db.companies);
   if(companies.length===0){ list.innerHTML='<p class="text-slate-600">Nenhuma empresa ainda</p>'; return; }
   list.innerHTML = companies.map(c => `<button onclick="quickLogin('${c.id}')" class="w-full text-left px-3 py-1.5 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-xs">${c.name}</button>`).join('');
 }
+
+/** Login rápido em uma empresa existente (pede senha). */
 function quickLogin(id){
   const pass = prompt('Senha para '+db.companies[id].name+':');
   if(!pass) return;
@@ -272,7 +398,9 @@ function quickLogin(id){
   showApp();
 }
 
-/* ======================= APP ======================= */
+/* ========================= NAVEGAÇÃO ========================= */
+
+/** Mostra a interface principal após login. */
 function showApp(){
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('appScreen').classList.remove('hidden');
@@ -282,27 +410,52 @@ function showApp(){
   document.getElementById('currentDate').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
   navigate('dashboard');
 }
+
+/** Alterna a sidebar no mobile. */
 function toggleSidebar(){
-  const s = document.getElementById('sidebar');
-  s.classList.toggle('-translate-x-full');
+  document.getElementById('sidebar').classList.toggle('open');
 }
+
+/**
+ * Navega para uma página específica.
+ * Atualiza o link ativo, o título e renderiza o conteúdo.
+ */
 function navigate(page){
   currentPage = page;
   document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('active'));
   const active = document.querySelector(`[data-page="${page}"]`);
   if(active) active.classList.add('active');
-  const titles = {dashboard:'Dashboard', transactions:'Transações', categories:'Categorias', cards:'Cartões de Crédito', accounts:'Contas / Carteiras', budgets:'Orçamentos', reports:'Relatórios', help:'Ajuda & Educação Financeira', settings:'Configurações'};
+  const titles = {
+    dashboard:'Dashboard', transactions:'Transações', categories:'Categorias',
+    cards:'Cartões de Crédito', accounts:'Contas / Carteiras',
+    piggybanks:'Caixinhas (Metas)', investments:'Investimentos',
+    bills:'Contas a Pagar / Receber', budgets:'Orçamentos',
+    dre:'DRE / Fluxo de Caixa', reports:'Relatórios Avançados',
+    share:'Divulgar o FinControl AI', help:'Ajuda & Educação Financeira',
+    settings:'Configurações'
+  };
   document.getElementById('pageTitle').textContent = titles[page] || '';
   renderPage();
-  if(window.innerWidth<768) document.getElementById('sidebar').classList.add('-translate-x-full');
+  if(window.innerWidth<768) document.getElementById('sidebar').classList.remove('open');
 }
 
+/** Despacha para a função de renderização da página atual. */
 function renderPage(){
-  const fn = {dashboard:renderDashboard, transactions:renderTransactions, categories:renderCategories, cards:renderCards, accounts:renderAccounts, budgets:renderBudgets, reports:renderReports, help:renderHelp, settings:renderSettings};
+  const fn = {
+    dashboard:renderDashboard, transactions:renderTransactions, categories:renderCategories,
+    cards:renderCards, accounts:renderAccounts, piggybanks:renderPiggybanks,
+    investments:renderInvestments, bills:renderBills, budgets:renderBudgets,
+    dre:renderDRE, reports:renderReports, share:renderShare,
+    help:renderHelp, settings:renderSettings
+  };
   (fn[currentPage]||renderDashboard)();
 }
 
-/* ======================= DASHBOARD ======================= */
+/* ==========================================================================
+   DASHBOARD
+   ========================================================================== */
+
+/** Renderiza o dashboard com KPIs, gráficos e dicas. */
 function renderDashboard(){
   const c = currentCompany();
   const mk = monthKey(today());
@@ -315,13 +468,15 @@ function renderDashboard(){
     const open = c.transactions.filter(t=>t.cardId===card.id && !t.paid).reduce((s,t)=>s+t.amount,0);
     return s+open;
   },0);
+  const investTotal = c.investments.reduce((s,i)=>s+(i.quantity*i.current_price),0);
+  const piggyTotal = c.piggybanks.reduce((s,p)=>s+p.balance,0);
 
   document.getElementById('pageContent').innerHTML = `
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       ${statCard('Receitas do Mês', fmtBRL(income), 'text-emerald-400', 'bg-emerald-500/10', '↑')}
       ${statCard('Despesas do Mês', fmtBRL(expense), 'text-red-400', 'bg-red-500/10', '↓')}
       ${statCard('Saldo do Mês', fmtBRL(balance), balance>=0?'text-emerald-400':'text-red-400', balance>=0?'bg-emerald-500/10':'bg-red-500/10', balance>=0?'✓':'⚠')}
-      ${statCard('Patrimônio Total', fmtBRL(totalBalance - cardDebt), 'text-blue-400', 'bg-blue-500/10', '💎')}
+      ${statCard('Patrimônio Total', fmtBRL(totalBalance - cardDebt + investTotal + piggyTotal), 'text-blue-400', 'bg-blue-500/10', '💎')}
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
@@ -385,7 +540,7 @@ function renderDashboard(){
   ];
   document.getElementById('dailyTip').textContent = tips[new Date().getDate() % tips.length];
 
-  // Charts
+  // Renderiza gráficos
   setTimeout(()=>{
     const last6 = getLast6Months();
     const incomeData = [], expenseData = [], labels = [];
@@ -422,6 +577,8 @@ function renderDashboard(){
     }
   },50);
 }
+
+/** Cria um card de estatística para o dashboard. */
 function statCard(title, value, color, bg, icon){
   return `<div class="glass rounded-2xl p-5 card-hover">
     <div class="flex items-center justify-between mb-2">
@@ -431,6 +588,8 @@ function statCard(title, value, color, bg, icon){
     <p class="text-2xl font-bold ${color}">${value}</p>
   </div>`;
 }
+
+/** Retorna os últimos 6 meses (chave e label). */
 function getLast6Months(){
   const arr = [];
   const d = new Date();
@@ -440,13 +599,20 @@ function getLast6Months(){
   }
   return arr;
 }
+
+/** Opções padrão para gráficos Chart.js. */
 function chartOpts(){
   return {responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#94a3b8'}}}, scales:{x:{ticks:{color:'#64748b'}, grid:{color:'#1f293722'}}, y:{ticks:{color:'#64748b', callback:v=>'R$'+v}, grid:{color:'#1f293744'}}}};
 }
-function destroyChart(id){ if(charts[id]){ charts[id].destroy(); delete charts[id]; } }
-function formatDate(d){ return new Date(d+'T00:00').toLocaleDateString('pt-BR'); }
 
-/* ======================= TRANSACTIONS ======================= */
+/** Destrói uma instância de gráfico existente (evita vazamento de memória). */
+function destroyChart(id){ if(charts[id]){ charts[id].destroy(); delete charts[id]; } }
+
+/* ==========================================================================
+   TRANSAÇÕES
+   ========================================================================== */
+
+/** Renderiza a tela de transações com filtros e tabela. */
 function renderTransactions(){
   const c = currentCompany();
   document.getElementById('pageContent').innerHTML = `
@@ -480,6 +646,8 @@ function renderTransactions(){
   `;
   filterTx();
 }
+
+/** Aplica filtros na lista de transações e renderiza a tabela. */
 function filterTx(){
   const c = currentCompany();
   const q = (document.getElementById('txSearch')?.value||'').toLowerCase();
@@ -509,6 +677,8 @@ function filterTx(){
     </tr>`;
   }).join('');
 }
+
+/** Abre modal de criação/edição de transação. */
 function openTxModal(id){
   const c = currentCompany();
   const t = id ? c.transactions.find(x=>x.id===id) : null;
@@ -565,6 +735,8 @@ function openTxModal(id){
     </div>
   `);
 }
+
+/** Salva uma transação (cria ou atualiza) e ajusta o saldo da conta. */
 function saveTx(id){
   const c = currentCompany();
   const data = {
@@ -580,7 +752,6 @@ function saveTx(id){
   
   if(id){
     const old = c.transactions.find(t=>t.id===id);
-    // reverse old
     const oldAcc = c.accounts.find(a=>a.id===old.accountId);
     if(oldAcc) oldAcc.balance += (old.type==='income'?-old.amount:old.amount);
     Object.assign(old, data);
@@ -597,6 +768,8 @@ function saveTx(id){
   toast('Transação salva!');
   renderTransactions();
 }
+
+/** Exclui uma transação e reverte o saldo da conta. */
 function deleteTx(id){
   if(!confirm('Excluir esta transação?')) return;
   const c = currentCompany();
@@ -609,7 +782,11 @@ function deleteTx(id){
   renderTransactions();
 }
 
-/* ======================= CATEGORIES ======================= */
+/* ==========================================================================
+   CATEGORIAS
+   ========================================================================== */
+
+/** Renderiza a lista de categorias em cards. */
 function renderCategories(){
   const c = currentCompany();
   document.getElementById('pageContent').innerHTML = `
@@ -646,6 +823,8 @@ function renderCategories(){
     </div>
   `;
 }
+
+/** Modal de criação/edição de categoria. */
 function openCatModal(id){
   const c = currentCompany();
   const cat = id ? c.categories.find(x=>x.id===id) : null;
@@ -680,6 +859,8 @@ function openCatModal(id){
     </div>
   `);
 }
+
+/** Salva categoria (cria ou atualiza). */
 function saveCat(id){
   const c = currentCompany();
   const data = {
@@ -693,6 +874,8 @@ function saveCat(id){
   else { c.categories.push({id:uid(), ...data}); }
   saveDB(); closeModal(); toast('Categoria salva!'); renderCategories();
 }
+
+/** Exclui categoria (transações existentes mantêm o registro). */
 function deleteCat(id){
   if(!confirm('Excluir categoria? Transações existentes manterão o registro.')) return;
   const c = currentCompany();
@@ -700,7 +883,11 @@ function deleteCat(id){
   saveDB(); renderCategories();
 }
 
-/* ======================= CARDS ======================= */
+/* ==========================================================================
+   CARTÕES DE CRÉDITO
+   ========================================================================== */
+
+/** Renderiza os cartões cadastrados com limite e uso. */
 function renderCards(){
   const c = currentCompany();
   document.getElementById('pageContent').innerHTML = `
@@ -748,6 +935,8 @@ function renderCards(){
     </div>`}
   `;
 }
+
+/** Modal de criação/edição de cartão. */
 function openCardModal(id){
   const c = currentCompany();
   const card = id ? c.cards.find(x=>x.id===id) : null;
@@ -806,6 +995,8 @@ function openCardModal(id){
     </div>
   `);
 }
+
+/** Salva cartão. */
 function saveCard(id){
   const c = currentCompany();
   const data = {
@@ -822,12 +1013,16 @@ function saveCard(id){
   else { c.cards.push({id:uid(), ...data}); }
   saveDB(); closeModal(); toast('Cartão salvo!'); renderCards();
 }
+
+/** Exclui cartão. */
 function deleteCard(id){
   if(!confirm('Excluir cartão?')) return;
   const c = currentCompany();
   c.cards = c.cards.filter(x=>x.id!==id);
   saveDB(); renderCards();
 }
+
+/** Visualiza a fatura de um cartão específico. */
 function viewCardTx(cardId){
   const c = currentCompany();
   const card = c.cards.find(x=>x.id===cardId);
@@ -857,6 +1052,8 @@ function viewCardTx(cardId){
     </div>
   `);
 }
+
+/** Alterna o status de pago de uma transação de cartão. */
 function togglePaid(id){
   const c = currentCompany();
   const t = c.transactions.find(x=>x.id===id);
@@ -865,7 +1062,11 @@ function togglePaid(id){
   viewCardTx(t.cardId);
 }
 
-/* ======================= ACCOUNTS ======================= */
+/* ==========================================================================
+   CONTAS / CARTEIRAS
+   ========================================================================== */
+
+/** Renderiza contas/carteiras com saldo total. */
 function renderAccounts(){
   const c = currentCompany();
   const total = c.accounts.reduce((s,a)=>s+a.balance,0);
@@ -902,6 +1103,8 @@ function renderAccounts(){
     </div>
   `;
 }
+
+/** Modal de criação/edição de conta. */
 function openAccModal(id){
   const c = currentCompany();
   const a = id ? c.accounts.find(x=>x.id===id) : null;
@@ -938,6 +1141,8 @@ function openAccModal(id){
     </div>
   `);
 }
+
+/** Salva conta. */
 function saveAcc(id){
   const c = currentCompany();
   const data = {
@@ -951,6 +1156,8 @@ function saveAcc(id){
   else { c.accounts.push({id:uid(), ...data}); }
   saveDB(); closeModal(); toast('Conta salva!'); renderAccounts();
 }
+
+/** Ajuste manual de saldo. */
 function adjustBalance(id){
   const v = prompt('Novo saldo (use valor com sinal para ajuste):');
   if(v===null) return;
@@ -959,6 +1166,8 @@ function adjustBalance(id){
   a.balance = parseFloat(v)||0;
   saveDB(); renderAccounts();
 }
+
+/** Exclui conta. */
 function deleteAcc(id){
   if(!confirm('Excluir conta?')) return;
   const c = currentCompany();
@@ -966,7 +1175,695 @@ function deleteAcc(id){
   saveDB(); renderAccounts();
 }
 
-/* ======================= BUDGETS ======================= */
+/* ==========================================================================
+   CAIXINHAS (tipo Nubank)
+   -------------------------------------------------------------------------
+   Caixinhas são "cofrinhos" com meta, onde o usuário deposita/resgata.
+   Cada caixinha tem uma lista de movimentações (deposits/withdraws).
+   ========================================================================== */
+
+/** Renderiza a tela de caixinhas com totais e cards. */
+function renderPiggybanks(){
+  const c = currentCompany();
+  const totalSaved = c.piggybanks.reduce((s,p)=>s+p.balance,0);
+  const totalGoal = c.piggybanks.reduce((s,p)=>s+(p.goal||0),0);
+  
+  document.getElementById('pageContent').innerHTML = `
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+      ${statCard('Total Guardado', fmtBRL(totalSaved), 'text-emerald-400', 'bg-emerald-500/10', '🐷')}
+      ${statCard('Meta Total', fmtBRL(totalGoal), 'text-blue-400', 'bg-blue-500/10', '🎯')}
+      ${statCard('Caixinhas Ativas', c.piggybanks.length, 'text-purple-400', 'bg-purple-500/10', '📊')}
+    </div>
+
+    <div class="flex justify-between mb-5">
+      <p class="text-slate-400 text-sm">Guarde dinheiro para objetivos específicos (viagem, reserva, presente...)</p>
+      <button onclick="openPiggyModal()" class="btn gradient-bg text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Nova Caixinha
+      </button>
+    </div>
+
+    ${c.piggybanks.length===0 ? '<div class="glass rounded-2xl p-12 text-center text-slate-400"><p class="text-4xl mb-3">🐷</p><p>Nenhuma caixinha ainda. Crie sua primeira meta!</p></div>' :
+    `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      ${c.piggybanks.map(p=>{
+        const pct = p.goal>0 ? Math.min(100,(p.balance/p.goal)*100) : 0;
+        return `<div class="glass rounded-2xl p-5 card-hover">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center text-3xl" style="background:${p.color}22">${p.icon||'🐷'}</div>
+            <div class="flex-1">
+              <h4 class="font-bold">${p.name}</h4>
+              <p class="text-xs text-slate-400">${fmtBRL(p.balance)} de ${fmtBRL(p.goal||0)}</p>
+            </div>
+          </div>
+          <div class="progress-bar mb-2"><div class="progress-fill" style="width:${pct}%; background:${p.color}"></div></div>
+          <p class="text-xs text-right mb-4" style="color:${p.color}">${pct.toFixed(0)}% da meta</p>
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="openPiggyMovement('${p.id}','deposit')" class="px-2 py-2 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 text-xs font-semibold">+ Depositar</button>
+            <button onclick="openPiggyMovement('${p.id}','withdraw')" class="px-2 py-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 text-xs font-semibold">- Resgatar</button>
+            <button onclick="viewPiggyHistory('${p.id}')" class="px-2 py-2 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 text-xs font-semibold">📜</button>
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button onclick="openPiggyModal('${p.id}')" class="flex-1 px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs">Editar</button>
+            <button onclick="deletePiggy('${p.id}')" class="px-2 py-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 text-xs">🗑</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`}
+  `;
+}
+
+/** Modal de criação/edição de caixinha. */
+function openPiggyModal(id){
+  const c = currentCompany();
+  const p = id ? c.piggybanks.find(x=>x.id===id) : null;
+  showModal(`
+    <div class="p-6">
+      <h3 class="text-xl font-bold mb-5">${p?'Editar':'Nova'} Caixinha</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-400">Nome da Caixinha</label>
+          <input id="pigName" type="text" value="${p?.name||''}" placeholder="Ex: Viagem, Reserva, Presente..." class="w-full px-3 py-2 rounded-lg"/>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Meta (R$)</label>
+          <input id="pigGoal" type="number" step="0.01" value="${p?.goal||''}" placeholder="0,00" class="w-full px-3 py-2 rounded-lg"/>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Saldo Atual (R$)</label>
+          <input id="pigBalance" type="number" step="0.01" value="${p?.balance||0}" class="w-full px-3 py-2 rounded-lg"/>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400">Ícone (emoji)</label>
+            <input id="pigIcon" type="text" value="${p?.icon||'🐷'}" maxlength="2" class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Cor</label>
+            <input id="pigColor" type="color" value="${p?.color||'#10b981'}" class="w-full h-10 rounded-lg"/>
+          </div>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button onclick="closeModal()" class="flex-1 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">Cancelar</button>
+          <button onclick="savePiggy('${id||''}')" class="flex-1 btn gradient-bg text-white px-4 py-2.5 rounded-lg text-sm font-semibold">Salvar</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+/** Salva caixinha. */
+function savePiggy(id){
+  const c = currentCompany();
+  const data = {
+    name: document.getElementById('pigName').value.trim(),
+    goal: parseFloat(document.getElementById('pigGoal').value)||0,
+    balance: parseFloat(document.getElementById('pigBalance').value)||0,
+    icon: document.getElementById('pigIcon').value.trim()||'🐷',
+    color: document.getElementById('pigColor').value
+  };
+  if(!data.name){ toast('Nome obrigatório','warn'); return; }
+  if(id){ Object.assign(c.piggybanks.find(x=>x.id===id), data); }
+  else { c.piggybanks.push({id:uid(), ...data, movements:[]}); }
+  saveDB(); closeModal(); toast('Caixinha salva!'); renderPiggybanks();
+}
+
+/** Exclui caixinha. */
+function deletePiggy(id){
+  if(!confirm('Excluir caixinha e todo seu histórico?')) return;
+  const c = currentCompany();
+  c.piggybanks = c.piggybanks.filter(x=>x.id!==id);
+  saveDB(); renderPiggybanks();
+}
+
+/** Modal de depósito/resgate em uma caixinha. */
+function openPiggyMovement(pigId, type){
+  const c = currentCompany();
+  const p = c.piggybanks.find(x=>x.id===pigId);
+  showModal(`
+    <div class="p-6">
+      <h3 class="text-xl font-bold mb-2">${type==='deposit'?'💰 Depositar':'💸 Resgatar'} — ${p.name}</h3>
+      <p class="text-sm text-slate-400 mb-5">Saldo atual: ${fmtBRL(p.balance)}</p>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-400">Valor (R$)</label>
+          <input id="movAmount" type="number" step="0.01" placeholder="0,00" class="w-full px-3 py-2 rounded-lg"/>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Data</label>
+          <input id="movDate" type="date" value="${today()}" class="w-full px-3 py-2 rounded-lg"/>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Conta de origem/destino</label>
+          <select id="movAcc" class="w-full px-3 py-2 rounded-lg">
+            ${c.accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Observação</label>
+          <input id="movNote" type="text" placeholder="Ex: Economia do mês..." class="w-full px-3 py-2 rounded-lg"/>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button onclick="closeModal()" class="flex-1 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">Cancelar</button>
+          <button onclick="savePiggyMovement('${pigId}','${type}')" class="flex-1 btn gradient-bg text-white px-4 py-2.5 rounded-lg text-sm font-semibold">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+/** Salva movimentação de caixinha (depósito ou resgate). */
+function savePiggyMovement(pigId, type){
+  const c = currentCompany();
+  const p = c.piggybanks.find(x=>x.id===pigId);
+  const amount = parseFloat(document.getElementById('movAmount').value);
+  const date = document.getElementById('movDate').value;
+  const accountId = document.getElementById('movAcc').value;
+  const note = document.getElementById('movNote').value.trim();
+  if(!amount || amount<=0){ toast('Valor inválido','warn'); return; }
+  if(type==='withdraw' && amount>p.balance){ toast('Saldo insuficiente na caixinha','danger'); return; }
+  
+  // Registra movimentação
+  if(!p.movements) p.movements = [];
+  p.movements.push({id:uid(), type, amount, date, accountId, note});
+  
+  // Ajusta saldo da caixinha
+  p.balance += (type==='deposit' ? amount : -amount);
+  
+  // Ajusta saldo da conta
+  const acc = c.accounts.find(a=>a.id===accountId);
+  if(acc) acc.balance += (type==='deposit' ? -amount : amount);
+  
+  saveDB(); closeModal(); toast('Movimentação registrada!'); renderPiggybanks();
+}
+
+/** Visualiza o histórico de movimentações de uma caixinha com gráfico. */
+function viewPiggyHistory(pigId){
+  const c = currentCompany();
+  const p = c.piggybanks.find(x=>x.id===pigId);
+  const movs = (p.movements||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
+  const totalDep = movs.filter(m=>m.type==='deposit').reduce((s,m)=>s+m.amount,0);
+  const totalWith = movs.filter(m=>m.type==='withdraw').reduce((s,m)=>s+m.amount,0);
+  
+  showModal(`
+    <div class="p-6">
+      <h3 class="text-xl font-bold mb-2">${p.icon||'🐷'} ${p.name}</h3>
+      <p class="text-sm text-slate-400 mb-4">Histórico de movimentações</p>
+      
+      <div class="grid grid-cols-3 gap-2 mb-4">
+        <div class="p-3 rounded-lg bg-emerald-500/10 text-center">
+          <p class="text-xs text-slate-400">Depositado</p>
+          <p class="font-bold text-emerald-400">${fmtBRL(totalDep)}</p>
+        </div>
+        <div class="p-3 rounded-lg bg-red-500/10 text-center">
+          <p class="text-xs text-slate-400">Resgatado</p>
+          <p class="font-bold text-red-400">${fmtBRL(totalWith)}</p>
+        </div>
+        <div class="p-3 rounded-lg bg-blue-500/10 text-center">
+          <p class="text-xs text-slate-400">Saldo</p>
+          <p class="font-bold text-blue-400">${fmtBRL(p.balance)}</p>
+        </div>
+      </div>
+
+      <div class="mb-4" style="height:180px;"><canvas id="pigChart"></canvas></div>
+
+      <div class="space-y-2 max-h-60 overflow-y-auto scroll">
+        ${movs.length===0?'<p class="text-center text-slate-500 py-4">Nenhuma movimentação</p>':
+        movs.map(m=>{
+          const acc = c.accounts.find(a=>a.id===m.accountId);
+          return `<div class="flex items-center justify-between p-3 rounded-lg bg-slate-900/50">
+            <div>
+              <p class="text-sm font-medium ${m.type==='deposit'?'text-emerald-400':'text-red-400'}">${m.type==='deposit'?'↑ Depósito':'↓ Resgate'}</p>
+              <p class="text-xs text-slate-400">${formatDate(m.date)} · ${acc?.name||'—'} ${m.note?'· '+m.note:''}</p>
+            </div>
+            <span class="font-bold text-sm">${m.type==='deposit'?'+':'-'}${fmtBRL(m.amount)}</span>
+          </div>`;
+        }).join('')}
+      </div>
+      <button onclick="closeModal()" class="w-full mt-4 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">Fechar</button>
+    </div>
+  `);
+  
+  // Gráfico de evolução
+  setTimeout(()=>{
+    const sorted = (p.movements||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));
+    let running = 0;
+    const labels = [], data = [];
+    sorted.forEach(m=>{
+      running += (m.type==='deposit'?m.amount:-m.amount);
+      labels.push(formatDate(m.date));
+      data.push(running);
+    });
+    if(labels.length>0){
+      new Chart(document.getElementById('pigChart'),{
+        type:'line',
+        data:{labels, datasets:[{label:'Saldo', data, borderColor:p.color, backgroundColor:p.color+'22', fill:true, tension:.3}]},
+        options:{...chartOpts(), plugins:{legend:{display:false}}}
+      });
+    }
+  },50);
+}
+
+/* ==========================================================================
+   INVESTIMENTOS (referência Investidor10)
+   -------------------------------------------------------------------------
+   Permite cadastrar ativos (Ações, FIIs, Renda Fixa, Crypto, Tesouro...)
+   com preço de compra, quantidade, preço atual, corretora.
+   ========================================================================== */
+
+/** Tipos de investimento disponíveis. */
+const INVESTMENT_TYPES = [
+  {value:'stock', label:'Ações', icon:'📈'},
+  {value:'fii', label:'Fundos Imobiliários', icon:'🏢'},
+  {value:'fixed', label:'Renda Fixa (CDB/LCI/LCA)', icon:'🏦'},
+  {value:'tesouro', label:'Tesouro Direto', icon:'🇧🇷'},
+  {value:'crypto', label:'Criptomoedas', icon:'₿'},
+  {value:'etf', label:'ETFs', icon:'📊'},
+  {value:'fund', label:'Fundos de Investimento', icon:'💼'},
+  {value:'prep', label:'Previdência Privada', icon:'👴'},
+  {value:'other', label:'Outros', icon:'📦'}
+];
+
+/** Renderiza a tela de investimentos. */
+function renderInvestments(){
+  const c = currentCompany();
+  const totalInvested = c.investments.reduce((s,i)=>s+(i.quantity*i.buy_price),0);
+  const totalCurrent = c.investments.reduce((s,i)=>s+(i.quantity*i.current_price),0);
+  const profit = totalCurrent - totalInvested;
+  const profitPct = totalInvested>0 ? (profit/totalInvested*100) : 0;
+
+  // Agrupa por tipo
+  const byType = {};
+  c.investments.forEach(i=>{
+    if(!byType[i.type]) byType[i.type] = {qty:0, invested:0, current:0};
+    byType[i.type].qty++;
+    byType[i.type].invested += i.quantity*i.buy_price;
+    byType[i.type].current += i.quantity*i.current_price;
+  });
+  
+  document.getElementById('pageContent').innerHTML = `
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5">
+      ${statCard('Total Investido', fmtBRL(totalInvested), 'text-blue-400', 'bg-blue-500/10', '💰')}
+      ${statCard('Valor Atual', fmtBRL(totalCurrent), 'text-emerald-400', 'bg-emerald-500/10', '💎')}
+      ${statCard('Lucro/Prejuízo', fmtBRL(profit)+' ('+profitPct.toFixed(2)+'%)', profit>=0?'text-emerald-400':'text-red-400', profit>=0?'bg-emerald-500/10':'bg-red-500/10', profit>=0?'↑':'↓')}
+      ${statCard('Ativos', c.investments.length, 'text-purple-400', 'bg-purple-500/10', '📊')}
+    </div>
+
+    <div class="flex justify-between mb-5">
+      <p class="text-slate-400 text-sm">Controle sua carteira de investimentos (referência Investidor10)</p>
+      <button onclick="openInvestModal()" class="btn gradient-bg text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Novo Investimento
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
+      <div class="glass rounded-2xl p-5 lg:col-span-2">
+        <h3 class="font-bold mb-4">Distribuição por Tipo</h3>
+        <div style="height:280px;"><canvas id="invTypeChart"></canvas></div>
+      </div>
+      <div class="glass rounded-2xl p-5">
+        <h3 class="font-bold mb-4">Resumo por Categoria</h3>
+        <div class="space-y-2">
+          ${Object.entries(byType).map(([type,data])=>{
+            const t = INVESTMENT_TYPES.find(x=>x.value===type);
+            const pct = totalCurrent>0 ? (data.current/totalCurrent*100) : 0;
+            const profit = data.current - data.invested;
+            return `<div class="p-2 rounded-lg bg-slate-900/50">
+              <div class="flex justify-between text-xs mb-1">
+                <span>${t?.icon||'📦'} ${t?.label||type}</span>
+                <span class="font-bold">${fmtBRL(data.current)}</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width:${pct}%; background:#10b981"></div></div>
+              <p class="text-xs mt-1 ${profit>=0?'text-emerald-400':'text-red-400'}">${profit>=0?'+':''}${fmtBRL(profit)}</p>
+            </div>`;
+          }).join('') || '<p class="text-center text-slate-500 text-xs py-4">Nenhum investimento</p>'}
+        </div>
+      </div>
+    </div>
+
+    <div class="glass rounded-2xl overflow-hidden">
+      <div class="overflow-x-auto scroll">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-900/50 text-xs text-slate-400">
+            <tr>
+              <th class="text-left p-3">Tipo</th>
+              <th class="text-left p-3">Nome/Ticker</th>
+              <th class="text-right p-3">Qtd</th>
+              <th class="text-right p-3">Preço Compra</th>
+              <th class="text-right p-3">Preço Atual</th>
+              <th class="text-right p-3">Total</th>
+              <th class="text-right p-3">Resultado</th>
+              <th class="p-3"></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${c.investments.length===0?'<tr><td colspan="8" class="text-center text-slate-500 py-8">Nenhum investimento cadastrado</td></tr>':
+            c.investments.map(i=>{
+              const t = INVESTMENT_TYPES.find(x=>x.value===i.type);
+              const invested = i.quantity*i.buy_price;
+              const current = i.quantity*i.current_price;
+              const res = current - invested;
+              const resPct = invested>0?(res/invested*100):0;
+              return `<tr class="border-t border-slate-800 hover:bg-slate-900/30">
+                <td class="p-3">${t?.icon||'📦'} <span class="text-xs text-slate-400">${t?.label||i.type}</span></td>
+                <td class="p-3">
+                  <p class="font-bold">${i.ticker||i.name}</p>
+                  <p class="text-xs text-slate-400">${i.broker||'—'} · ${formatDate(i.buy_date)}</p>
+                </td>
+                <td class="p-3 text-right">${i.quantity}</td>
+                <td class="p-3 text-right">${fmtBRL(i.buy_price)}</td>
+                <td class="p-3 text-right">${fmtBRL(i.current_price)}</td>
+                <td class="p-3 text-right font-bold">${fmtBRL(current)}</td>
+                <td class="p-3 text-right ${res>=0?'text-emerald-400':'text-red-400'}">
+                  ${res>=0?'+':''}${fmtBRL(res)}<br>
+                  <span class="text-xs">(${resPct.toFixed(2)}%)</span>
+                </td>
+                <td class="p-3 text-right">
+                  <button onclick="openInvestModal('${i.id}')" class="text-slate-400 hover:text-blue-400 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                  <button onclick="deleteInvest('${i.id}')" class="text-slate-400 hover:text-red-400 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg></button>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  // Gráfico de distribuição
+  setTimeout(()=>{
+    destroyChart('invTypeChart');
+    const labels = Object.keys(byType);
+    if(labels.length>0){
+      charts.invTypeChart = new Chart(document.getElementById('invTypeChart'),{
+        type:'doughnut',
+        data:{
+          labels: labels.map(l=>INVESTMENT_TYPES.find(x=>x.value===l)?.label||l),
+          datasets:[{data: labels.map(l=>byType[l].current), backgroundColor:['#10b981','#3b82f6','#8b5cf6','#f59e0b','#ef4444','#ec4899','#06b6d4','#14b8a6','#64748b']}]
+        },
+        options:{...chartOpts(), plugins:{legend:{position:'right', labels:{color:'#94a3b8', boxWidth:10, font:{size:10}}}}}
+      });
+    }
+  },50);
+}
+
+/** Modal de criação/edição de investimento. */
+function openInvestModal(id){
+  const c = currentCompany();
+  const i = id ? c.investments.find(x=>x.id===id) : null;
+  showModal(`
+    <div class="p-6">
+      <h3 class="text-xl font-bold mb-5">${i?'Editar':'Novo'} Investimento</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-400">Tipo</label>
+          <select id="invType" class="w-full px-3 py-2 rounded-lg">
+            ${INVESTMENT_TYPES.map(t=>`<option value="${t.value}" ${i?.type===t.value?'selected':''}>${t.icon} ${t.label}</option>`).join('')}
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400">Ticker / Nome</label>
+            <input id="invTicker" type="text" value="${i?.ticker||''}" placeholder="Ex: PETR4, MXRF11..." class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Nome Completo</label>
+            <input id="invName" type="text" value="${i?.name||''}" placeholder="Ex: Petrobras PN..." class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="text-xs text-slate-400">Quantidade</label>
+            <input id="invQty" type="number" step="0.0001" value="${i?.quantity||''}" class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Preço Compra</label>
+            <input id="invBuy" type="number" step="0.01" value="${i?.buy_price||''}" class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Preço Atual</label>
+            <input id="invCurrent" type="number" step="0.01" value="${i?.current_price||''}" class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400">Corretora</label>
+            <input id="invBroker" type="text" value="${i?.broker||''}" placeholder="Ex: XP, NuInvest..." class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Data Compra</label>
+            <input id="invDate" type="date" value="${i?.buy_date||today()}" class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Observações</label>
+          <textarea id="invNotes" rows="2" class="w-full px-3 py-2 rounded-lg">${i?.notes||''}</textarea>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button onclick="closeModal()" class="flex-1 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">Cancelar</button>
+          <button onclick="saveInvest('${id||''}')" class="flex-1 btn gradient-bg text-white px-4 py-2.5 rounded-lg text-sm font-semibold">Salvar</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+/** Salva investimento. */
+function saveInvest(id){
+  const c = currentCompany();
+  const data = {
+    type: document.getElementById('invType').value,
+    ticker: document.getElementById('invTicker').value.trim(),
+    name: document.getElementById('invName').value.trim(),
+    quantity: parseFloat(document.getElementById('invQty').value)||0,
+    buy_price: parseFloat(document.getElementById('invBuy').value)||0,
+    current_price: parseFloat(document.getElementById('invCurrent').value)||0,
+    broker: document.getElementById('invBroker').value.trim(),
+    buy_date: document.getElementById('invDate').value,
+    notes: document.getElementById('invNotes').value.trim()
+  };
+  if(!data.ticker && !data.name){ toast('Ticker ou nome obrigatório','warn'); return; }
+  if(data.quantity<=0){ toast('Quantidade inválida','warn'); return; }
+  if(id){ Object.assign(c.investments.find(x=>x.id===id), data); }
+  else { c.investments.push({id:uid(), ...data}); }
+  saveDB(); closeModal(); toast('Investimento salvo!'); renderInvestments();
+}
+
+/** Exclui investimento. */
+function deleteInvest(id){
+  if(!confirm('Excluir investimento?')) return;
+  const c = currentCompany();
+  c.investments = c.investments.filter(x=>x.id!==id);
+  saveDB(); renderInvestments();
+}
+
+/* ==========================================================================
+   CONTAS A PAGAR / RECEBER
+   ========================================================================== */
+
+/** Renderiza contas a pagar e receber com filtros. */
+function renderBills(){
+  const c = currentCompany();
+  document.getElementById('pageContent').innerHTML = `
+    <div class="flex gap-2 mb-5">
+      <button onclick="setBillFilter('all')" class="tab-filter active" data-bf="all">Todas</button>
+      <button onclick="setBillFilter('pay')" class="tab-filter" data-bf="pay">A Pagar</button>
+      <button onclick="setBillFilter('receive')" class="tab-filter" data-bf="receive">A Receber</button>
+      <button onclick="setBillFilter('pending')" class="tab-filter" data-bf="pending">Pendentes</button>
+      <button onclick="setBillFilter('paid')" class="tab-filter" data-bf="paid">Pagas/Recebidas</button>
+      <button onclick="setBillFilter('overdue')" class="tab-filter" data-bf="overdue">Atrasadas</button>
+    </div>
+
+    <div class="flex justify-between mb-5">
+      <p class="text-slate-400 text-sm">Controle de contas a pagar e receber</p>
+      <button onclick="openBillModal()" class="btn gradient-bg text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Nova Conta
+      </button>
+    </div>
+
+    <div class="glass rounded-2xl overflow-hidden">
+      <div class="overflow-x-auto scroll">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-900/50 text-xs text-slate-400">
+            <tr>
+              <th class="text-left p-3">Tipo</th>
+              <th class="text-left p-3">Descrição</th>
+              <th class="text-left p-3">Categoria</th>
+              <th class="text-left p-3">Vencimento</th>
+              <th class="text-right p-3">Valor</th>
+              <th class="text-center p-3">Status</th>
+              <th class="p-3"></th>
+            </tr>
+          </thead>
+          <tbody id="billTable"></tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  window._billFilter = 'all';
+  filterBills();
+}
+
+/** Define filtro ativo de contas. */
+function setBillFilter(f){
+  window._billFilter = f;
+  document.querySelectorAll('[data-bf]').forEach(b=>{
+    b.classList.toggle('active', b.dataset.bf===f);
+  });
+  filterBills();
+}
+
+/** Aplica filtro e renderiza tabela de contas. */
+function filterBills(){
+  const c = currentCompany();
+  const f = window._billFilter || 'all';
+  const todayStr = today();
+  let list = [...c.bills];
+  if(f==='pay') list = list.filter(b=>b.type==='pay');
+  if(f==='receive') list = list.filter(b=>b.type==='receive');
+  if(f==='pending') list = list.filter(b=>b.status==='pending');
+  if(f==='paid') list = list.filter(b=>b.status==='paid');
+  if(f==='overdue') list = list.filter(b=>b.status==='pending' && b.due_date<todayStr);
+  list.sort((a,b)=>a.due_date.localeCompare(b.due_date));
+  
+  const tbody = document.getElementById('billTable');
+  if(list.length===0){ tbody.innerHTML='<tr><td colspan="7" class="text-center text-slate-500 py-8">Nenhuma conta encontrada</td></tr>'; return; }
+  tbody.innerHTML = list.map(b=>{
+    const cat = c.categories.find(x=>x.id===b.categoryId);
+    const isOverdue = b.status==='pending' && b.due_date<todayStr;
+    const statusColor = b.status==='paid'?'bg-emerald-500/20 text-emerald-400':isOverdue?'bg-red-500/20 text-red-400':'bg-yellow-500/20 text-yellow-400';
+    const statusText = b.status==='paid'?'✓ Pago':isOverdue?'⚠ Atrasado':'⏳ Pendente';
+    return `<tr class="border-t border-slate-800 hover:bg-slate-900/30">
+      <td class="p-3"><span class="badge ${b.type==='pay'?'bg-red-500/20 text-red-400':'bg-emerald-500/20 text-emerald-400'}">${b.type==='pay'?'↓ Pagar':'↑ Receber'}</span></td>
+      <td class="p-3 font-medium">${b.description}</td>
+      <td class="p-3 text-xs text-slate-400">${cat?.icon||''} ${cat?.name||'—'}</td>
+      <td class="p-3 text-slate-400">${formatDate(b.due_date)}</td>
+      <td class="p-3 text-right font-bold ${b.type==='pay'?'text-red-400':'text-emerald-400'}">${fmtBRL(b.amount)}</td>
+      <td class="p-3 text-center"><span class="badge ${statusColor}">${statusText}</span></td>
+      <td class="p-3 text-right">
+        ${b.status==='pending'?`<button onclick="markBillPaid('${b.id}')" class="text-xs px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 mr-1">✓ Baixar</button>`:''}
+        <button onclick="openBillModal('${b.id}')" class="text-slate-400 hover:text-blue-400 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+        <button onclick="deleteBill('${b.id}')" class="text-slate-400 hover:text-red-400 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/** Modal de criação/edição de conta a pagar/receber. */
+function openBillModal(id){
+  const c = currentCompany();
+  const b = id ? c.bills.find(x=>x.id===id) : null;
+  showModal(`
+    <div class="p-6">
+      <h3 class="text-xl font-bold mb-5">${b?'Editar':'Nova'} Conta</h3>
+      <div class="space-y-3">
+        <div class="grid grid-cols-2 gap-2">
+          <label class="flex items-center gap-2 p-3 rounded-lg cursor-pointer ${(!b||b.type==='pay')?'bg-red-500/20 border border-red-500/50':'bg-slate-800'}" onclick="document.getElementById('billType').value='pay'; this.classList.add('bg-red-500/20','border','border-red-500/50'); this.nextElementSibling.classList.remove('bg-emerald-500/20','border','border-emerald-500/50'); this.nextElementSibling.classList.add('bg-slate-800');">
+            <input type="radio" name="billTypeR" value="pay" ${(!b||b.type==='pay')?'checked':''} onchange="document.getElementById('billType').value='pay'" class="hidden"/>
+            <span class="text-red-400 font-semibold">↓ A Pagar</span>
+          </label>
+          <label class="flex items-center gap-2 p-3 rounded-lg cursor-pointer ${(b&&b.type==='receive')?'bg-emerald-500/20 border border-emerald-500/50':'bg-slate-800'}" onclick="document.getElementById('billType').value='receive'; this.classList.add('bg-emerald-500/20','border','border-emerald-500/50'); this.previousElementSibling.classList.remove('bg-red-500/20','border','border-red-500/50'); this.previousElementSibling.classList.add('bg-slate-800');">
+            <input type="radio" name="billTypeR" value="receive" ${(b&&b.type==='receive')?'checked':''} onchange="document.getElementById('billType').value='receive'" class="hidden"/>
+            <span class="text-emerald-400 font-semibold">↑ A Receber</span>
+          </label>
+        </div>
+        <input id="billType" type="hidden" value="${b?.type||'pay'}"/>
+        <div>
+          <label class="text-xs text-slate-400">Descrição</label>
+          <input id="billDesc" type="text" value="${b?.description||''}" placeholder="Ex: Aluguel, Salário cliente..." class="w-full px-3 py-2 rounded-lg"/>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400">Valor (R$)</label>
+            <input id="billAmount" type="number" step="0.01" value="${b?.amount||''}" class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Vencimento</label>
+            <input id="billDue" type="date" value="${b?.due_date||today()}" class="w-full px-3 py-2 rounded-lg"/>
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Categoria</label>
+          <select id="billCat" class="w-full px-3 py-2 rounded-lg">
+            ${c.categories.map(cat=>`<option value="${cat.id}" ${b?.categoryId===cat.id?'selected':''}>${cat.icon} ${cat.name}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Conta (quando pago/recebido)</label>
+          <select id="billAcc" class="w-full px-3 py-2 rounded-lg">
+            <option value="">—</option>
+            ${c.accounts.map(a=>`<option value="${a.id}" ${b?.accountId===a.id?'selected':''}>${a.name}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Contato/Fornecedor (opcional)</label>
+          <input id="billContact" type="text" value="${b?.contact||''}" class="w-full px-3 py-2 rounded-lg"/>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button onclick="closeModal()" class="flex-1 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm">Cancelar</button>
+          <button onclick="saveBill('${id||''}')" class="flex-1 btn gradient-bg text-white px-4 py-2.5 rounded-lg text-sm font-semibold">Salvar</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+/** Salva conta a pagar/receber. */
+function saveBill(id){
+  const c = currentCompany();
+  const data = {
+    type: document.getElementById('billType').value,
+    description: document.getElementById('billDesc').value.trim(),
+    amount: parseFloat(document.getElementById('billAmount').value),
+    due_date: document.getElementById('billDue').value,
+    categoryId: document.getElementById('billCat').value,
+    accountId: document.getElementById('billAcc').value||null,
+    contact: document.getElementById('billContact').value.trim(),
+    status: 'pending'
+  };
+  if(!data.description || !data.amount || !data.due_date){ toast('Preencha os campos obrigatórios','warn'); return; }
+  if(id){
+    const old = c.bills.find(x=>x.id===id);
+    data.status = old.status;
+    Object.assign(old, data);
+  } else {
+    c.bills.push({id:uid(), ...data});
+  }
+  saveDB(); closeModal(); toast('Conta salva!'); renderBills();
+}
+
+/** Marca conta como paga/recebida e ajusta saldo da conta. */
+function markBillPaid(id){
+  const c = currentCompany();
+  const b = c.bills.find(x=>x.id===id);
+  if(!b.accountId){
+    const acc = c.accounts[0];
+    if(!acc){ toast('Crie uma conta primeiro','warn'); return; }
+    b.accountId = acc.id;
+  }
+  b.status = 'paid';
+  b.paid_date = today();
+  const acc = c.accounts.find(a=>a.id===b.accountId);
+  if(acc){
+    acc.balance += (b.type==='receive' ? b.amount : -b.amount);
+  }
+  saveDB(); toast('Conta baixada!'); filterBills();
+}
+
+/** Exclui conta. */
+function deleteBill(id){
+  if(!confirm('Excluir conta?')) return;
+  const c = currentCompany();
+  c.bills = c.bills.filter(x=>x.id!==id);
+  saveDB(); filterBills();
+}
+
+/* ==========================================================================
+   ORÇAMENTOS
+   ========================================================================== */
+
+/** Renderiza orçamentos mensais por categoria. */
 function renderBudgets(){
   const c = currentCompany();
   const mk = monthKey(today());
@@ -1012,6 +1909,8 @@ function renderBudgets(){
     </div>
   `;
 }
+
+/** Modal de criação/edição de orçamento. */
 function openBudgetModal(id){
   const c = currentCompany();
   const b = id ? c.budgets.find(x=>x.id===id) : null;
@@ -1037,6 +1936,8 @@ function openBudgetModal(id){
     </div>
   `);
 }
+
+/** Salva orçamento. */
 function saveBudget(id){
   const c = currentCompany();
   const data = {
@@ -1048,6 +1949,8 @@ function saveBudget(id){
   else { c.budgets.push({id:uid(), ...data}); }
   saveDB(); closeModal(); toast('Orçamento salvo!'); renderBudgets();
 }
+
+/** Exclui orçamento. */
 function deleteBudget(id){
   if(!confirm('Excluir orçamento?')) return;
   const c = currentCompany();
@@ -1055,27 +1958,51 @@ function deleteBudget(id){
   saveDB(); renderBudgets();
 }
 
-/* ======================= REPORTS ======================= */
-function renderReports(){
+/* ==========================================================================
+   DRE / FLUXO DE CAIXA
+   -------------------------------------------------------------------------
+   DRE (Demonstração do Resultado do Exercício) simplificada.
+   Fluxo de caixa mostra entradas e saídas por período.
+   ========================================================================== */
+
+/** Renderiza DRE e fluxo de caixa. */
+function renderDRE(){
   const c = currentCompany();
   document.getElementById('pageContent').innerHTML = `
     <div class="flex flex-wrap gap-3 mb-5">
-      <select id="repPeriod" class="px-3 py-2 rounded-lg text-sm" onchange="renderReportContent()">
+      <select id="drePeriod" class="px-3 py-2 rounded-lg text-sm" onchange="renderDREContent()">
         <option value="month">Este Mês</option>
         <option value="last3">Últimos 3 Meses</option>
         <option value="last6">Últimos 6 Meses</option>
         <option value="year">Este Ano</option>
         <option value="all">Tudo</option>
       </select>
-      <button onclick="printReport()" class="btn gradient-bg text-white px-4 py-2 rounded-lg text-sm font-semibold">🖨 Imprimir</button>
+      <div class="flex gap-2">
+        <button onclick="setDREMode('dre')" class="tab-filter active" data-dre="dre">📊 DRE</button>
+        <button onclick="setDREMode('flow')" class="tab-filter" data-dre="flow">💧 Fluxo de Caixa</button>
+        <button onclick="setDREMode('tips')" class="tab-filter" data-dre="tips">💡 Dicas</button>
+      </div>
     </div>
-    <div id="reportContent"></div>
+    <div id="dreContent"></div>
   `;
-  renderReportContent();
+  window._dreMode = 'dre';
+  renderDREContent();
 }
-function renderReportContent(){
+
+/** Alterna modo DRE/Fluxo/Dicas. */
+function setDREMode(m){
+  window._dreMode = m;
+  document.querySelectorAll('[data-dre]').forEach(b=>{
+    b.classList.toggle('active', b.dataset.dre===m);
+  });
+  renderDREContent();
+}
+
+/** Renderiza o conteúdo conforme modo e período selecionados. */
+function renderDREContent(){
   const c = currentCompany();
-  const period = document.getElementById('repPeriod').value;
+  const period = document.getElementById('drePeriod').value;
+  const mode = window._dreMode || 'dre';
   const now = new Date();
   let txs = [...c.transactions];
   if(period==='month') txs = txs.filter(t=>monthKey(t.date)===monthKey(today()));
@@ -1087,77 +2014,657 @@ function renderReportContent(){
   
   const income = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   const expense = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-  const balance = income - expense;
-  const savingsRate = income>0 ? ((income-expense)/income*100) : 0;
-
-  const catExp = {};
+  const result = income - expense;
+  
+  // Agrupa despesas por categoria
+  const expByCat = {};
   txs.filter(t=>t.type==='expense').forEach(t=>{
     const cat = c.categories.find(x=>x.id===t.categoryId);
     const name = cat?.name||'Outros';
-    catExp[name] = (catExp[name]||0) + t.amount;
+    expByCat[name] = (expByCat[name]||0) + t.amount;
+  });
+  // Agrupa receitas por categoria
+  const incByCat = {};
+  txs.filter(t=>t.type==='income').forEach(t=>{
+    const cat = c.categories.find(x=>x.id===t.categoryId);
+    const name = cat?.name||'Outros';
+    incByCat[name] = (incByCat[name]||0) + t.amount;
   });
 
-  const accBal = {};
-  c.accounts.forEach(a=>accBal[a.name]=a.balance);
+  const content = document.getElementById('dreContent');
+  
+  if(mode==='dre'){
+    // DRE simplificada
+    content.innerHTML = `
+      <div class="glass rounded-2xl p-6 mb-5">
+        <h3 class="text-xl font-bold mb-2">📊 DRE Simplificada</h3>
+        <p class="text-xs text-slate-400 mb-5">Demonstração do Resultado do Exercício — período selecionado</p>
+        <div class="space-y-2">
+          <div class="flex justify-between p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+            <span class="font-semibold">(+) RECEITAS OPERACIONAIS</span>
+            <span class="font-bold text-emerald-400">${fmtBRL(income)}</span>
+          </div>
+          ${Object.entries(incByCat).map(([n,v])=>`
+            <div class="flex justify-between pl-6 text-sm text-slate-300">
+              <span>· ${n}</span><span>${fmtBRL(v)}</span>
+            </div>
+          `).join('')}
+          <div class="flex justify-between p-3 rounded-lg bg-red-500/10 border border-red-500/20 mt-3">
+            <span class="font-semibold">(−) DESPESAS OPERACIONAIS</span>
+            <span class="font-bold text-red-400">${fmtBRL(expense)}</span>
+          </div>
+          ${Object.entries(expByCat).sort((a,b)=>b[1]-a[1]).map(([n,v])=>`
+            <div class="flex justify-between pl-6 text-sm text-slate-300">
+              <span>· ${n}</span><span>${fmtBRL(v)}</span>
+            </div>
+          `).join('')}
+          <div class="flex justify-between p-4 rounded-lg ${result>=0?'bg-emerald-500/20 border border-emerald-500/30':'bg-red-500/20 border border-red-500/30'} mt-3">
+            <span class="font-bold text-lg">= RESULTADO LÍQUIDO</span>
+            <span class="font-bold text-2xl ${result>=0?'text-emerald-400':'text-red-400'}">${fmtBRL(result)}</span>
+          </div>
+          <div class="flex justify-between p-3 rounded-lg bg-slate-900/50 mt-2">
+            <span class="text-sm text-slate-400">Margem líquida</span>
+            <span class="font-bold">${income>0?((result/income)*100).toFixed(2):'0.00'}%</span>
+          </div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-5">
+        <h3 class="font-bold mb-4">Composição</h3>
+        <div style="height:280px;"><canvas id="dreChart"></canvas></div>
+      </div>
+    `;
+    setTimeout(()=>{
+      destroyChart('dreChart');
+      charts.dreChart = new Chart(document.getElementById('dreChart'),{
+        type:'bar',
+        data:{labels:['Receitas','Despesas','Resultado'], datasets:[{data:[income, expense, result], backgroundColor:['#10b981','#ef4444', result>=0?'#10b981':'#ef4444'], borderRadius:8}]},
+        options:{...chartOpts(), plugins:{legend:{display:false}}}
+      });
+    },50);
+  }
+  else if(mode==='flow'){
+    // Fluxo de caixa por mês
+    const months = getLast6Months();
+    const flowData = months.map(m=>{
+      const txsM = c.transactions.filter(t=>monthKey(t.date)===m.key);
+      const inc = txsM.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+      const exp = txsM.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+      return {label:m.label, income:inc, expense:exp, balance:inc-exp};
+    });
+    content.innerHTML = `
+      <div class="glass rounded-2xl p-5 mb-5">
+        <h3 class="font-bold mb-4">💧 Fluxo de Caixa — Últimos 6 meses</h3>
+        <div style="height:300px;"><canvas id="flowChart"></canvas></div>
+      </div>
+      <div class="glass rounded-2xl overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-900/50 text-xs text-slate-400">
+            <tr><th class="text-left p-3">Mês</th><th class="text-right p-3">Entradas</th><th class="text-right p-3">Saídas</th><th class="text-right p-3">Saldo</th></tr>
+          </thead>
+          <tbody>
+            ${flowData.map(f=>`<tr class="border-t border-slate-800">
+              <td class="p-3 font-medium">${f.label}</td>
+              <td class="p-3 text-right text-emerald-400">${fmtBRL(f.income)}</td>
+              <td class="p-3 text-right text-red-400">${fmtBRL(f.expense)}</td>
+              <td class="p-3 text-right font-bold ${f.balance>=0?'text-emerald-400':'text-red-400'}">${fmtBRL(f.balance)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+    setTimeout(()=>{
+      destroyChart('flowChart');
+      charts.flowChart = new Chart(document.getElementById('flowChart'),{
+        type:'bar',
+        data:{labels:flowData.map(f=>f.label), datasets:[
+          {label:'Entradas', data:flowData.map(f=>f.income), backgroundColor:'#10b981', borderRadius:6},
+          {label:'Saídas', data:flowData.map(f=>f.expense), backgroundColor:'#ef4444', borderRadius:6}
+        ]},
+        options:chartOpts()
+      });
+    },50);
+  }
+  else if(mode==='tips'){
+    // Dicas para doméstico e pequeno negócio
+    content.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="glass rounded-2xl p-5">
+          <h3 class="font-bold mb-4 text-emerald-400">🏠 Controle Doméstico</h3>
+          <ul class="space-y-2 text-sm text-slate-300">
+            <li>✓ <strong>Anote tudo</strong> — nem que seja R$ 5. Você vai se assustar.</li>
+            <li>✓ <strong>Use a regra 50/30/20</strong> — 50% necessidades, 30% desejos, 20% poupar.</li>
+            <li>✓ <strong>Revise assinaturas</strong> — cancele o que não usa (streaming, apps, academia).</li>
+            <li>✓ <strong>Compre à vista</strong> — evite parcelamentos longos.</li>
+            <li>✓ <strong>Faça lista de mercado</strong> — e siga. Sem fome, sem impulso.</li>
+            <li>✓ <strong>Cozinhe em casa</strong> — delivery é um dos maiores ralos de dinheiro.</li>
+            <li>✓ <strong>Reserva de emergência</strong> — 3 a 6 meses de despesas.</li>
+            <li>✓ <strong>Renegocie</strong> — internet, plano de saúde, aluguel. Tudo se negocia.</li>
+            <li>✓ <strong>Evite o rotativo do cartão</strong> — juros de 300%+ ao ano.</li>
+            <li>✓ <strong>Compare preços</strong> — antes de comprar, pesquise em 3 lugares.</li>
+          </ul>
+        </div>
+        <div class="glass rounded-2xl p-5">
+          <h3 class="font-bold mb-4 text-blue-400">🏪 Pequeno Negócio</h3>
+          <ul class="space-y-2 text-sm text-slate-300">
+            <li>✓ <strong>Separe PF de PJ</strong> — defina seu pró-labore e não misture.</li>
+            <li>✓ <strong>Fluxo de caixa semanal</strong> — não espere o mês acabar.</li>
+            <li>✓ <strong>Controle de estoque</strong> — produto parado é dinheiro parado.</li>
+            <li>✓ <strong>Preço com margem</strong> — calcule custos + margem + impostos.</li>
+            <li>✓ <strong>Contas a receber</strong> — cobre no vencimento. Inadimplência quebra.</li>
+            <li>✓ <strong>Reserva do negócio</strong> — 1 a 2 meses de custos fixos.</li>
+            <li>✓ <strong>Invista em marketing</strong> — redes sociais, Google Meu Negócio.</li>
+            <li>✓ <strong>Meça tudo</strong> — ticket médio, conversão, CAC, LTV.</li>
+            <li>✓ <strong>Formalize</strong> — MEI é barato e abre portas.</li>
+            <li>✓ <strong>Reinvista lucros</strong> — nos primeiros anos, crescimento > conforto.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-5 mt-4">
+        <h3 class="font-bold mb-4 text-purple-400">📈 Indicadores-Chave</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="p-3 rounded-lg bg-slate-900/50">
+            <p class="text-xs text-slate-400">Margem Líquida</p>
+            <p class="text-xl font-bold text-emerald-400">${income>0?((result/income)*100).toFixed(1):'0'}%</p>
+            <p class="text-xs text-slate-500 mt-1">Ideal: >20%</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-900/50">
+            <p class="text-xs text-slate-400">Taxa de Esforço</p>
+            <p class="text-xl font-bold text-blue-400">${income>0?((expense/income)*100).toFixed(1):'0'}%</p>
+            <p class="text-xs text-slate-500 mt-1">Ideal: <80%</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-900/50">
+            <p class="text-xs text-slate-400">Média Diária Gasto</p>
+            <p class="text-xl font-bold text-yellow-400">${fmtBRL(expense/30)}</p>
+            <p class="text-xs text-slate-500 mt-1">últimos 30 dias</p>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-900/50">
+            <p class="text-xs text-slate-400">Projeção Anual</p>
+            <p class="text-xl font-bold text-purple-400">${fmtBRL(result*12)}</p>
+            <p class="text-xs text-slate-500 mt-1">se mantiver ritmo</p>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+/* ==========================================================================
+   RELATÓRIOS AVANÇADOS (estilo Power BI)
+   -------------------------------------------------------------------------
+   Filtros avançados: período, tipo, categoria, conta, cartão, valor min/max,
+   busca textual. Múltiplos gráficos e análises.
+   ========================================================================== */
+
+/** Renderiza tela de relatórios com filtros avançados. */
+function renderReports(){
+  const c = currentCompany();
+  document.getElementById('pageContent').innerHTML = `
+    <div class="glass rounded-2xl p-5 mb-5">
+      <h3 class="font-bold mb-4">🔍 Filtros Avançados</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div>
+          <label class="text-xs text-slate-400">Data Início</label>
+          <input id="repStart" type="date" class="w-full px-3 py-2 rounded-lg text-sm" onchange="applyReportFilters()"/>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Data Fim</label>
+          <input id="repEnd" type="date" class="w-full px-3 py-2 rounded-lg text-sm" onchange="applyReportFilters()"/>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Tipo</label>
+          <select id="repType" class="w-full px-3 py-2 rounded-lg text-sm" onchange="applyReportFilters()">
+            <option value="">Todos</option>
+            <option value="income">Receitas</option>
+            <option value="expense">Despesas</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Categoria</label>
+          <select id="repCat" class="w-full px-3 py-2 rounded-lg text-sm" onchange="applyReportFilters()">
+            <option value="">Todas</option>
+            ${c.categories.map(cat=>`<option value="${cat.id}">${cat.icon} ${cat.name}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Conta</label>
+          <select id="repAcc" class="w-full px-3 py-2 rounded-lg text-sm" onchange="applyReportFilters()">
+            <option value="">Todas</option>
+            ${c.accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Cartão</label>
+          <select id="repCard" class="w-full px-3 py-2 rounded-lg text-sm" onchange="applyReportFilters()">
+            <option value="">Todos</option>
+            ${c.cards.map(cd=>`<option value="${cd.id}">${cd.name}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Valor Mínimo</label>
+          <input id="repMin" type="number" step="0.01" placeholder="0,00" class="w-full px-3 py-2 rounded-lg text-sm" onchange="applyReportFilters()"/>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Valor Máximo</label>
+          <input id="repMax" type="number" step="0.01" placeholder="∞" class="w-full px-3 py-2 rounded-lg text-sm" onchange="applyReportFilters()"/>
+        </div>
+        <div class="md:col-span-3 lg:col-span-4">
+          <label class="text-xs text-slate-400">Busca textual</label>
+          <input id="repSearch" type="text" placeholder="Ex: mercado, aluguel, salário..." class="w-full px-3 py-2 rounded-lg text-sm" oninput="applyReportFilters()"/>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-4">
+        <button onclick="setQuickPeriod('month')" class="tab-filter">Este Mês</button>
+        <button onclick="setQuickPeriod('last3')" class="tab-filter">3 Meses</button>
+        <button onclick="setQuickPeriod('last6')" class="tab-filter">6 Meses</button>
+        <button onclick="setQuickPeriod('year')" class="tab-filter">Este Ano</button>
+        <button onclick="setQuickPeriod('all')" class="tab-filter">Tudo</button>
+        <button onclick="clearReportFilters()" class="tab-filter">🧹 Limpar</button>
+      </div>
+    </div>
+    <div id="reportContent"></div>
+  `;
+  // Define período padrão: este mês
+  const now = new Date();
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
+  document.getElementById('repStart').value = firstDay;
+  document.getElementById('repEnd').value = today();
+  applyReportFilters();
+}
+
+/** Aplica filtros avançados e renderiza relatório. */
+function applyReportFilters(){
+  const c = currentCompany();
+  const start = document.getElementById('repStart').value;
+  const end = document.getElementById('repEnd').value;
+  const type = document.getElementById('repType').value;
+  const cat = document.getElementById('repCat').value;
+  const acc = document.getElementById('repAcc').value;
+  const card = document.getElementById('repCard').value;
+  const min = parseFloat(document.getElementById('repMin').value)||0;
+  const max = parseFloat(document.getElementById('repMax').value)||Infinity;
+  const search = (document.getElementById('repSearch').value||'').toLowerCase();
+  
+  let txs = [...c.transactions];
+  if(start) txs = txs.filter(t=>t.date>=start);
+  if(end) txs = txs.filter(t=>t.date<=end);
+  if(type) txs = txs.filter(t=>t.type===type);
+  if(cat) txs = txs.filter(t=>t.categoryId===cat);
+  if(acc) txs = txs.filter(t=>t.accountId===acc);
+  if(card) txs = txs.filter(t=>t.cardId===card);
+  txs = txs.filter(t=>t.amount>=min && t.amount<=max);
+  if(search) txs = txs.filter(t=>t.description.toLowerCase().includes(search));
+  
+  const income = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const expense = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const balance = income - expense;
+  const savingsRate = income>0 ? ((income-expense)/income*100) : 0;
+  const ticket = txs.length>0 ? (income+expense)/txs.length : 0;
+
+  // Agrupa por categoria
+  const catData = {};
+  txs.forEach(t=>{
+    const cat = c.categories.find(x=>x.id===t.categoryId);
+    const name = cat?.name||'Outros';
+    const key = t.type+'_'+name;
+    catData[key] = (catData[key]||0) + t.amount;
+  });
+
+  // Por conta
+  const accData = {};
+  txs.forEach(t=>{
+    const a = c.accounts.find(x=>x.id===t.accountId);
+    const name = a?.name||'—';
+    accData[name] = (accData[name]||0) + (t.type==='income'?t.amount:-t.amount);
+  });
+
+  // Por dia
+  const dayData = {};
+  txs.forEach(t=>{
+    dayData[t.date] = (dayData[t.date]||0) + (t.type==='income'?t.amount:-t.amount);
+  });
+  const dayLabels = Object.keys(dayData).sort();
 
   document.getElementById('reportContent').innerHTML = `
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-5">
       ${statCard('Receitas', fmtBRL(income), 'text-emerald-400', 'bg-emerald-500/10', '↑')}
       ${statCard('Despesas', fmtBRL(expense), 'text-red-400', 'bg-red-500/10', '↓')}
       ${statCard('Saldo', fmtBRL(balance), balance>=0?'text-emerald-400':'text-red-400', balance>=0?'bg-emerald-500/10':'bg-red-500/10', balance>=0?'✓':'⚠')}
-      ${statCard('Taxa de Poupança', savingsRate.toFixed(1)+'%', savingsRate>=20?'text-emerald-400':savingsRate>=0?'text-yellow-400':'text-red-400', savingsRate>=20?'bg-emerald-500/10':savingsRate>=0?'bg-yellow-500/10':'bg-red-500/10', '%')}
+      ${statCard('Taxa Poupança', savingsRate.toFixed(1)+'%', savingsRate>=20?'text-emerald-400':savingsRate>=0?'text-yellow-400':'text-red-400', savingsRate>=20?'bg-emerald-500/10':savingsRate>=0?'bg-yellow-500/10':'bg-red-500/10', '%')}
+      ${statCard('Transações', txs.length+' (ticket '+fmtBRL(ticket)+')', 'text-blue-400', 'bg-blue-500/10', '#')}
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5">
       <div class="glass rounded-2xl p-5">
-        <h3 class="font-bold mb-4">Despesas por Categoria</h3>
-        <div style="height:300px;"><canvas id="repChart1"></canvas></div>
+        <h3 class="font-bold mb-4">Por Categoria</h3>
+        <div style="height:300px;"><canvas id="repCatChart"></canvas></div>
       </div>
       <div class="glass rounded-2xl p-5">
-        <h3 class="font-bold mb-4">Patrimônio por Conta</h3>
-        <div style="height:300px;"><canvas id="repChart2"></canvas></div>
+        <h3 class="font-bold mb-4">Evolução Diária</h3>
+        <div style="height:300px;"><canvas id="repDayChart"></canvas></div>
       </div>
     </div>
     <div class="glass rounded-2xl p-5">
       <h3 class="font-bold mb-4">Detalhamento por Categoria</h3>
       <div class="space-y-2">
-        ${Object.entries(catExp).sort((a,b)=>b[1]-a[1]).map(([name,val])=>{
+        ${Object.entries(catData).sort((a,b)=>b[1]-a[1]).map(([key,val])=>{
+          const [type, name] = key.split('_');
           const cat = c.categories.find(x=>x.name===name);
-          const pct = expense>0?(val/expense*100):0;
+          const pct = (type==='expense'&&expense>0)?(val/expense*100):(type==='income'&&income>0)?(val/income*100):0;
           return `<div>
             <div class="flex justify-between text-sm mb-1">
-              <span>${cat?.icon||'•'} ${name}</span>
-              <span class="font-bold">${fmtBRL(val)} <span class="text-slate-400 text-xs">(${pct.toFixed(1)}%)</span></span>
+              <span>${cat?.icon||'•'} ${name} <span class="text-xs text-slate-500">(${type==='income'?'receita':'despesa'})</span></span>
+              <span class="font-bold ${type==='income'?'text-emerald-400':'text-red-400'}">${fmtBRL(val)} <span class="text-slate-400 text-xs">(${pct.toFixed(1)}%)</span></span>
             </div>
             <div class="progress-bar"><div class="progress-fill" style="width:${pct}%; background:${cat?.color||'#64748b'}"></div></div>
           </div>`;
-        }).join('') || '<p class="text-center text-slate-500 py-6">Sem despesas no período</p>'}
+        }).join('') || '<p class="text-center text-slate-500 py-6">Sem dados no período</p>'}
+      </div>
+    </div>
+    <div class="glass rounded-2xl p-5 mt-5">
+      <h3 class="font-bold mb-4">Transações Filtradas (${txs.length})</h3>
+      <div class="overflow-x-auto scroll max-h-96">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-900/50 text-xs text-slate-400 sticky top-0">
+            <tr><th class="text-left p-2">Data</th><th class="text-left p-2">Descrição</th><th class="text-left p-2">Categoria</th><th class="text-left p-2">Conta</th><th class="text-right p-2">Valor</th></tr>
+          </thead>
+          <tbody>
+            ${txs.sort((a,b)=>b.date.localeCompare(a.date)).slice(0,200).map(t=>{
+              const cat = c.categories.find(x=>x.id===t.categoryId);
+              const acc = c.accounts.find(x=>x.id===t.accountId);
+              return `<tr class="border-t border-slate-800">
+                <td class="p-2 text-slate-400">${formatDate(t.date)}</td>
+                <td class="p-2">${t.description}</td>
+                <td class="p-2"><span class="badge" style="background:${cat?.color||'#64748b'}22; color:${cat?.color||'#94a3b8'}">${cat?.icon||''} ${cat?.name||'—'}</span></td>
+                <td class="p-2 text-xs text-slate-400">${acc?.name||'—'}</td>
+                <td class="p-2 text-right font-bold ${t.type==='income'?'text-emerald-400':'text-red-400'}">${t.type==='income'?'+':'-'}${fmtBRL(t.amount)}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
       </div>
     </div>
   `;
+
   setTimeout(()=>{
-    destroyChart('repChart1');
-    destroyChart('repChart2');
-    const labels = Object.keys(catExp);
-    if(labels.length>0){
-      charts.repChart1 = new Chart(document.getElementById('repChart1'),{
+    destroyChart('repCatChart');
+    destroyChart('repDayChart');
+    const catLabels = Object.keys(catData);
+    if(catLabels.length>0){
+      charts.repCatChart = new Chart(document.getElementById('repCatChart'),{
         type:'pie',
-        data:{labels, datasets:[{data:Object.values(catExp), backgroundColor:labels.map(n=>c.categories.find(x=>x.name===n)?.color||'#64748b'), borderWidth:0}]},
-        options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'right', labels:{color:'#94a3b8', boxWidth:10, font:{size:10}}}}}
+        data:{labels:catLabels.map(k=>k.split('_')[1]), datasets:[{data:Object.values(catData), backgroundColor:catLabels.map(k=>{const n=k.split('_')[1]; return c.categories.find(x=>x.name===n)?.color||'#64748b';}), borderWidth:0}]},
+        options:{...chartOpts(), plugins:{legend:{position:'right', labels:{color:'#94a3b8', boxWidth:10, font:{size:10}}}}}
       });
     }
-    const accLabels = Object.keys(accBal);
-    if(accLabels.length>0){
-      charts.repChart2 = new Chart(document.getElementById('repChart2'),{
-        type:'bar',
-        data:{labels:accLabels, datasets:[{label:'Saldo', data:Object.values(accBal), backgroundColor:'#10b981', borderRadius:8}]},
-        options:{...chartOpts(), plugins:{legend:{display:false}}}
+    if(dayLabels.length>0){
+      charts.repDayChart = new Chart(document.getElementById('repDayChart'),{
+        type:'line',
+        data:{labels:dayLabels.map(d=>formatDate(d)), datasets:[{label:'Saldo diário', data:dayLabels.map(d=>dayData[d]), borderColor:'#8b5cf6', backgroundColor:'rgba(139,92,246,.15)', fill:true, tension:.3}]},
+        options:chartOpts()
       });
     }
   },50);
 }
-function printReport(){ window.print(); }
 
-/* ======================= HELP ======================= */
+/** Define período rápido nos filtros. */
+function setQuickPeriod(p){
+  const now = new Date();
+  let start, end = today();
+  if(p==='month'){ start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10); }
+  else if(p==='last3'){ start = new Date(now.getFullYear(), now.getMonth()-3, 1).toISOString().slice(0,10); }
+  else if(p==='last6'){ start = new Date(now.getFullYear(), now.getMonth()-6, 1).toISOString().slice(0,10); }
+  else if(p==='year'){ start = new Date(now.getFullYear(), 0, 1).toISOString().slice(0,10); }
+  else { start = ''; end = ''; }
+  document.getElementById('repStart').value = start;
+  document.getElementById('repEnd').value = end;
+  applyReportFilters();
+}
+
+/** Limpa todos os filtros. */
+function clearReportFilters(){
+  document.getElementById('repStart').value='';
+  document.getElementById('repEnd').value='';
+  document.getElementById('repType').value='';
+  document.getElementById('repCat').value='';
+  document.getElementById('repAcc').value='';
+  document.getElementById('repCard').value='';
+  document.getElementById('repMin').value='';
+  document.getElementById('repMax').value='';
+  document.getElementById('repSearch').value='';
+  applyReportFilters();
+}
+
+/* ==========================================================================
+   DIVULGAÇÃO
+   -------------------------------------------------------------------------
+   Menu com botões para redes sociais, textos prontos para copiar,
+   e botão de compartilhar no WhatsApp.
+   ========================================================================== */
+
+/** Renderiza tela de divulgação. */
+function renderShare(){
+  const shortText = `💚 FinControl AI — Controle financeiro gratuito e completo! Dashboard, cartões, investimentos, caixinhas, DRE, relatórios avançados e educação financeira. Um presente da IA para os seres humanos. Acesse: ${APP_URL}`;
+  
+  const longText = `🚀 CONHEÇA O FINCONTROL AI — SEU CONTROLE FINANCEIRO COMPLETO! 💚
+
+Você está no vermelho? Perdeu o controle do cartão? Não sabe para onde vai seu dinheiro? O FinControl AI foi feito para VOCÊ!
+
+✅ O QUE ELE OFERECE:
+• 📊 Dashboard completo com gráficos e KPIs
+• 💳 Controle de cartões de crédito com fatura
+• 🐷 Caixinhas (tipo Nubank) com metas e histórico
+• 📈 Gestão de investimentos (Ações, FIIs, Crypto, Renda Fixa...)
+• 📝 Contas a pagar e receber
+• 📋 DRE e Fluxo de Caixa (como nas empresas)
+• 🎯 Orçamentos por categoria
+• 🔍 Relatórios avançados estilo Power BI
+• 📚 Educação financeira completa (do zero ao investimento)
+• 💡 Dicas para controle doméstico e pequeno negócio
+
+🎁 100% GRATUITO — um presente da IA para os seres humanos!
+
+🔗 ACESSE AGORA: ${APP_URL}
+
+💾 Seus dados ficam salvos no SEU navegador — total privacidade!
+📤 Exporte e importe seus dados quando quiser.
+🔒 Multi-empresa: cada usuário isolado, ninguém vê dados do outro.
+
+💚 Feito com carinho por Walney Moreira Klein
+✉️ Contato: ${APP_EMAIL}
+
+#FinControlAI #EducaçãoFinanceira #ControleFinanceiro #FinançasPessoais #Dívidas #Investimentos #Gratuito`;
+
+  const facebookText = `💚 FinControl AI — Controle financeiro gratuito! Dashboard, cartões, investimentos, caixinhas, DRE, relatórios avançados e educação financeira. Acesse: ${APP_URL}`;
+  
+  const twitterText = `💚 FinControl AI — controle financeiro gratuito com dashboard, cartões, investimentos, caixinhas, DRE e educação financeira. Um presente da IA para os seres humanos! ${APP_URL} #FinControlAI #Finanças`;
+
+  const linkedinText = `🚀 Apresento o FinControl AI — uma ferramenta gratuita de controle financeiro pessoal e para pequenos negócios.
+
+Inclui:
+✅ Dashboard com KPIs e gráficos
+✅ Controle de cartões de crédito
+✅ Caixinhas com metas (estilo Nubank)
+✅ Gestão de investimentos
+✅ DRE e Fluxo de Caixa
+✅ Relatórios avançados
+✅ Educação financeira completa
+
+Um presente da IA para os seres humanos 💚
+
+Acesse: ${APP_URL}
+
+#Finanças #EducaçãoFinanceira #Tecnologia #OpenSource #FinControlAI`;
+
+  const telegramText = shortText;
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="glass rounded-2xl p-6 mb-5 gradient-bg">
+      <h2 class="text-2xl font-bold mb-2">📢 Divulgue o FinControl AI</h2>
+      <p class="text-sm opacity-90">Ajude mais pessoas a saírem do buraco financeiro! Compartilhe em suas redes.</p>
+      <p class="text-xs mt-2 opacity-75">🔗 ${APP_URL}</p>
+    </div>
+
+    <!-- Botões de redes sociais -->
+    <div class="glass rounded-2xl p-5 mb-5">
+      <h3 class="font-bold mb-4">🌐 Compartilhar nas Redes Sociais</h3>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <button onclick="shareWhatsApp()" class="social-btn p-4 rounded-xl bg-green-500 hover:bg-green-600 text-white font-semibold text-sm flex flex-col items-center gap-2">
+          <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          WhatsApp
+        </button>
+        <button onclick="shareFacebook()" class="social-btn p-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm flex flex-col items-center gap-2">
+          <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
+        </button>
+        <button onclick="shareInstagram()" class="social-btn p-4 rounded-xl text-white font-semibold text-sm flex flex-col items-center gap-2" style="background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)">
+          <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          Instagram
+        </button>
+        <button onclick="shareTwitter()" class="social-btn p-4 rounded-xl bg-slate-900 hover:bg-black text-white font-semibold text-sm flex flex-col items-center gap-2 border border-slate-700">
+          <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          Twitter/X
+        </button>
+        <button onclick="shareLinkedin()" class="social-btn p-4 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-semibold text-sm flex flex-col items-center gap-2">
+          <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </button>
+        <button onclick="shareTelegram()" class="social-btn p-4 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-semibold text-sm flex flex-col items-center gap-2">
+          <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+          Telegram
+        </button>
+      </div>
+      <div class="mt-4 p-3 rounded-lg bg-slate-900/50 text-xs text-slate-400">
+        💡 <strong>Dica:</strong> ao clicar, o texto será copiado. Cole na rede social escolhida e publique!
+      </div>
+    </div>
+
+    <!-- Textos prontos -->
+    <div class="space-y-4">
+      <div class="glass rounded-2xl p-5">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-bold">📝 Texto CURTO (legendas rápidas)</h3>
+          <button onclick="copyText('shortText')" class="btn gradient-bg text-white px-3 py-1.5 rounded-lg text-xs font-semibold">📋 Copiar</button>
+        </div>
+        <textarea id="shortText" readonly rows="4" class="w-full px-3 py-2 rounded-lg text-sm resize-none">${shortText}</textarea>
+      </div>
+
+      <div class="glass rounded-2xl p-5">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-bold">📄 Texto LONGO (posts completos)</h3>
+          <button onclick="copyText('longText')" class="btn gradient-bg text-white px-3 py-1.5 rounded-lg text-xs font-semibold">📋 Copiar</button>
+        </div>
+        <textarea id="longText" readonly rows="18" class="w-full px-3 py-2 rounded-lg text-sm resize-none font-mono">${longText}</textarea>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="glass rounded-2xl p-5">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="font-bold text-blue-400">📘 Facebook</h3>
+            <button onclick="copyText('fbText')" class="btn bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">📋</button>
+          </div>
+          <textarea id="fbText" readonly rows="4" class="w-full px-3 py-2 rounded-lg text-sm resize-none">${facebookText}</textarea>
+        </div>
+        <div class="glass rounded-2xl p-5">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="font-bold text-slate-300">🐦 Twitter/X</h3>
+            <button onclick="copyText('twText')" class="btn bg-slate-900 hover:bg-black text-white px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-700">📋</button>
+          </div>
+          <textarea id="twText" readonly rows="4" class="w-full px-3 py-2 rounded-lg text-sm resize-none">${twitterText}</textarea>
+        </div>
+        <div class="glass rounded-2xl p-5">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="font-bold text-blue-700">💼 LinkedIn</h3>
+            <button onclick="copyText('liText')" class="btn bg-blue-700 hover:bg-blue-800 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">📋</button>
+          </div>
+          <textarea id="liText" readonly rows="8" class="w-full px-3 py-2 rounded-lg text-sm resize-none">${linkedinText}</textarea>
+        </div>
+        <div class="glass rounded-2xl p-5">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="font-bold text-sky-400">✈️ Telegram</h3>
+            <button onclick="copyText('tgText')" class="btn bg-sky-500 hover:bg-sky-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">📋</button>
+          </div>
+          <textarea id="tgText" readonly rows="4" class="w-full px-3 py-2 rounded-lg text-sm resize-none">${telegramText}</textarea>
+        </div>
+      </div>
+
+      <!-- Link e QR Code -->
+      <div class="glass rounded-2xl p-5">
+        <h3 class="font-bold mb-4">🔗 Link do Projeto</h3>
+        <div class="flex gap-2">
+          <input id="shareUrl" type="text" value="${APP_URL}" readonly class="flex-1 px-3 py-2 rounded-lg text-sm"/>
+          <button onclick="copyText('shareUrl')" class="btn gradient-bg text-white px-4 py-2 rounded-lg text-sm font-semibold">📋 Copiar</button>
+          <button onclick="window.open('${APP_URL}','_blank')" class="btn bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">🔗 Abrir</button>
+        </div>
+      </div>
+
+      <!-- Créditos -->
+      <div class="glass rounded-2xl p-5 text-center">
+        <p class="text-sm text-slate-400">💚 Um presente da IA para os seres humanos</p>
+        <p class="text-xs text-slate-500 mt-2">Desenvolvido por ${APP_AUTHOR} · ${APP_EMAIL} · v${APP_VERSION}</p>
+      </div>
+    </div>
+  `;
+}
+
+/** Compartilha no WhatsApp. */
+function shareWhatsApp(){
+  const text = `💚 FinControl AI — Controle financeiro gratuito! Dashboard, cartões, investimentos, caixinhas, DRE, relatórios avançados e educação financeira. Acesse: ${APP_URL}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  toast('Abrindo WhatsApp...');
+}
+
+/** Compartilha no Facebook. */
+function shareFacebook(){
+  copyText('longText');
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(APP_URL)}`, '_blank');
+  toast('Texto copiado! Cole no Facebook.');
+}
+
+/** Abre Instagram (copia texto para colar). */
+function shareInstagram(){
+  copyText('shortText');
+  window.open('https://www.instagram.com/', '_blank');
+  toast('Texto copiado! Cole no Instagram.');
+}
+
+/** Compartilha no Twitter/X. */
+function shareTwitter(){
+  const text = `💚 FinControl AI — controle financeiro gratuito! ${APP_URL} #FinControlAI #Finanças`;
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+}
+
+/** Compartilha no LinkedIn. */
+function shareLinkedin(){
+  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(APP_URL)}`, '_blank');
+  copyText('liText');
+  toast('Texto copiado! Cole no LinkedIn.');
+}
+
+/** Compartilha no Telegram. */
+function shareTelegram(){
+  const text = `💚 FinControl AI — ${APP_URL}`;
+  window.open(`https://t.me/share/url?url=${encodeURIComponent(APP_URL)}&text=${encodeURIComponent(text)}`, '_blank');
+}
+
+/** Copia o conteúdo de um elemento para a área de transferência. */
+function copyText(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const text = el.value || el.textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    toast('Copiado para a área de transferência!');
+  }).catch(()=>{
+    // Fallback
+    el.select();
+    document.execCommand('copy');
+    toast('Copiado!');
+  });
+}
+
+/* ==========================================================================
+   AJUDA / EDUCAÇÃO FINANCEIRA
+   ========================================================================== */
+
+/** Renderiza tela de ajuda com módulos educacionais. */
 function renderHelp(){
   document.getElementById('pageContent').innerHTML = `
     <div class="glass rounded-2xl p-6 mb-5 gradient-bg">
@@ -1254,6 +2761,8 @@ function renderHelp(){
     </div>
   `;
 }
+
+/** Cria uma seção colapsável de ajuda. */
 function helpSection(title, content){
   return `<details class="glass rounded-2xl overflow-hidden">
     <summary class="p-5 cursor-pointer hover:bg-slate-800/50 font-bold flex items-center justify-between">
@@ -1264,7 +2773,11 @@ function helpSection(title, content){
   </details>`;
 }
 
-/* ======================= SETTINGS ======================= */
+/* ==========================================================================
+   CONFIGURAÇÕES
+   ========================================================================== */
+
+/** Renderiza tela de configurações com backup, seeders e sobre. */
 function renderSettings(){
   const c = currentCompany();
   document.getElementById('pageContent').innerHTML = `
@@ -1321,17 +2834,22 @@ function renderSettings(){
         <h3 class="font-bold mb-4">ℹ️ Sobre</h3>
         <div class="space-y-2 text-sm">
           <div class="flex justify-between"><span class="text-slate-400">Nome:</span><span class="font-semibold">FinControl AI</span></div>
-          <div class="flex justify-between"><span class="text-slate-400">Versão:</span><span class="font-semibold">0.1</span></div>
-          <div class="flex justify-between"><span class="text-slate-400">Autor:</span><span class="font-semibold">Walney Moreira Klein</span></div>
-          <div class="flex justify-between"><span class="text-slate-400">Contato:</span><span class="font-semibold">walneyk@hotmail.com</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Versão:</span><span class="font-semibold">${APP_VERSION}</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Autor:</span><span class="font-semibold">${APP_AUTHOR}</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Contato:</span><span class="font-semibold">${APP_EMAIL}</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">URL:</span><span class="font-semibold text-emerald-400">${APP_URL}</span></div>
           <div class="flex justify-between"><span class="text-slate-400">Licença:</span><span class="font-semibold">Presente da IA para os seres humanos 💚</span></div>
           <div class="flex justify-between"><span class="text-slate-400">Empresa criada em:</span><span class="font-semibold">${formatDate(c.createdAt)}</span></div>
           <div class="flex justify-between"><span class="text-slate-400">Total de transações:</span><span class="font-semibold">${c.transactions.length}</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Total de investimentos:</span><span class="font-semibold">${c.investments.length}</span></div>
+          <div class="flex justify-between"><span class="text-slate-400">Total de caixinhas:</span><span class="font-semibold">${c.piggybanks.length}</span></div>
         </div>
       </div>
     </div>
   `;
 }
+
+/** Salva configurações da empresa. */
 function saveSettings(){
   const c = currentCompany();
   c.name = document.getElementById('setName').value.trim()||c.name;
@@ -1342,6 +2860,8 @@ function saveSettings(){
   document.getElementById('currentCompany').textContent = c.name;
   toast('Configurações salvas!');
 }
+
+/** Exporta dados da empresa em JSON. */
 function exportData(){
   const c = currentCompany();
   const data = JSON.stringify(c, null, 2);
@@ -1354,6 +2874,8 @@ function exportData(){
   URL.revokeObjectURL(url);
   toast('Dados exportados!');
 }
+
+/** Importa dados de um arquivo JSON. */
 function importData(e){
   const file = e.target.files[0];
   if(!file) return;
@@ -1373,6 +2895,8 @@ function importData(e){
   };
   reader.readAsText(file);
 }
+
+/** Zera todos os dados da empresa. */
 function resetData(){
   if(!confirm('ZERAR todos os dados? Esta ação não pode ser desfeita!')) return;
   if(!confirm('Tem CERTEZA ABSOLUTA? Tudo será apagado.')) return;
@@ -1380,12 +2904,17 @@ function resetData(){
   c.transactions = [];
   c.cards = [];
   c.budgets = [];
+  c.piggybanks = [];
+  c.investments = [];
+  c.bills = [];
   c.accounts = defaultAccounts();
   c.categories = defaultCategories();
   saveDB();
   toast('Dados zerados!');
   renderSettings();
 }
+
+/** Exclui a empresa atual. */
 function deleteCompany(){
   if(!confirm('EXCLUIR esta empresa permanentemente?')) return;
   if(!confirm('ÚLTIMA CHANCE. Todos os dados serão perdidos.')) return;
@@ -1394,20 +2923,22 @@ function deleteCompany(){
   doLogout();
   toast('Empresa excluída');
 }
+
+/** Carrega dados de demonstração (seeders). */
 function loadSeeders(){
   if(!confirm('Carregar dados de demonstração? Dados atuais serão mantidos.')) return;
   const c = currentCompany();
-  const now = new Date();
   const cats = c.categories;
   const accs = c.accounts;
   const catMap = {sal:cats.find(x=>x.name==='Salário')?.id, ali:cats.find(x=>x.name==='Alimentação')?.id, mor:cats.find(x=>x.name==='Moradia')?.id, tra:cats.find(x=>x.name==='Transporte')?.id, sau:cats.find(x=>x.name==='Saúde')?.id, laz:cats.find(x=>x.name==='Lazer')?.id, edu:cats.find(x=>x.name==='Educação')?.id, inv:cats.find(x=>x.name==='Investimentos')?.id, out:cats.find(x=>x.name==='Outros')?.id};
   
-  // add card if none
+  // Cria cartão se não existir
   if(c.cards.length===0){
     c.cards.push({id:uid(), name:'Nubank', limit:5000, last4:'1234', flag:'Nubank', dueDay:10, color:'#8b5cf6', color2:'#1e293b'});
   }
   const cardId = c.cards[0].id;
   
+  // Transações demo
   const demoTx = [
     {type:'income', description:'Salário', amount:4500, categoryId:catMap.sal, accountId:accs[0].id, daysAgo:25},
     {type:'income', description:'Freelance design', amount:800, categoryId:catMap.sal, accountId:accs[0].id, daysAgo:15},
@@ -1435,21 +2966,58 @@ function loadSeeders(){
       date:d.toISOString().slice(0,10), note:'', paid:false
     });
   });
-  // adjust balances
+  
+  // Caixinhas demo
+  if(c.piggybanks.length===0){
+    c.piggybanks.push({id:uid(), name:'Reserva de Emergência', goal:10000, balance:2500, icon:'🛡️', color:'#10b981', movements:[
+      {id:uid(), type:'deposit', amount:1500, date:new Date(Date.now()-60*86400000).toISOString().slice(0,10), accountId:accs[0].id, note:'Início'},
+      {id:uid(), type:'deposit', amount:1000, date:new Date(Date.now()-30*86400000).toISOString().slice(0,10), accountId:accs[0].id, note:'Economia do mês'}
+    ]});
+    c.piggybanks.push({id:uid(), name:'Viagem', goal:5000, balance:800, icon:'✈️', color:'#3b82f6', movements:[]});
+    c.piggybanks.push({id:uid(), name:'Novo notebook', goal:4000, balance:1200, icon:'💻', color:'#8b5cf6', movements:[]});
+  }
+  
+  // Investimentos demo
+  if(c.investments.length===0){
+    c.investments.push({id:uid(), type:'stock', ticker:'PETR4', name:'Petrobras PN', quantity:100, buy_price:28.50, current_price:38.20, broker:'XP', buy_date:'2024-03-15', notes:''});
+    c.investments.push({id:uid(), type:'fii', ticker:'MXRF11', name:'Maxi Renda', quantity:200, buy_price:10.20, current_price:10.85, broker:'NuInvest', buy_date:'2024-06-10', notes:''});
+    c.investments.push({id:uid(), type:'fixed', ticker:'CDB Banco Inter', name:'CDB 120% CDI', quantity:5000, buy_price:1, current_price:1, broker:'Inter', buy_date:'2024-09-01', notes:'Vencimento 2026'});
+    c.investments.push({id:uid(), type:'tesouro', ticker:'Tesouro Selic 2029', name:'Tesouro Selic', quantity:0.5, buy_price:13500, current_price:14200, broker:'XP', buy_date:'2024-01-20', notes:''});
+    c.investments.push({id:uid(), type:'crypto', ticker:'BTC', name:'Bitcoin', quantity:0.015, buy_price:250000, current_price:340000, broker:'Mercado Bitcoin', buy_date:'2024-05-10', notes:''});
+  }
+  
+  // Contas a pagar/receber demo
+  if(c.bills.length===0){
+    c.bills.push({id:uid(), type:'pay', description:'Aluguel Outubro', amount:1200, due_date:'2026-10-10', categoryId:catMap.mor, accountId:accs[0].id, contact:'Imobiliária X', status:'pending'});
+    c.bills.push({id:uid(), type:'pay', description:'Cartão Nubank', amount:650, due_date:'2026-10-15', categoryId:catMap.out, accountId:accs[0].id, contact:'Nubank', status:'pending'});
+    c.bills.push({id:uid(), type:'receive', description:'Freelance Cliente A', amount:1500, due_date:'2026-10-20', categoryId:catMap.sal, accountId:accs[0].id, contact:'Cliente A', status:'pending'});
+    c.bills.push({id:uid(), type:'pay', description:'Conta de luz', amount:180, due_date:'2026-09-25', categoryId:catMap.mor, accountId:accs[0].id, contact:'Enel', status:'pending'});
+  }
+  
+  // Ajusta saldos
   accs[0].balance = 3200; accs[1].balance = 5400; accs[2].balance = 350;
   saveDB();
   toast('Dados demo carregados!');
   renderSettings();
 }
 
-/* ======================= UTIL ======================= */
+/* ==========================================================================
+   UTILITÁRIOS DE UI
+   ========================================================================== */
+
+/** Abre o modal genérico com HTML. */
 function showModal(html){
   document.getElementById('modalContent').innerHTML = html;
   document.getElementById('modal').classList.remove('hidden');
 }
+
+/** Fecha o modal. */
 function closeModal(){ document.getElementById('modal').classList.add('hidden'); }
+
+/** Fecha modal ao clicar fora. */
 document.getElementById('modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
 
+/** Exibe toast de notificação. */
 function toast(msg, type='success'){
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -1459,10 +3027,20 @@ function toast(msg, type='success'){
   setTimeout(()=>t.classList.add('hidden'), 3000);
 }
 
-/* INIT */
+/* ==========================================================================
+   INICIALIZAÇÃO
+   ========================================================================== */
+
+/** Renderiza lista de empresas no login. */
 renderCompanyList();
-// mobile sidebar default
-if(window.innerWidth<768) document.getElementById('sidebar').classList.add('-translate-x-full');
+
+/** Sidebar colapsada por padrão no mobile. */
+if(window.innerWidth<768) document.getElementById('sidebar').classList.remove('open');
+
+/* Mensagem no console para desenvolvedores curiosos 💚 */
+console.log('%c💚 FinControl AI v'+APP_VERSION, 'font-size:20px; font-weight:bold; color:#10b981;');
+console.log('%cUm presente da IA para os seres humanos.', 'color:#94a3b8;');
+console.log('%c'+APP_AUTHOR+' — '+APP_EMAIL, 'color:#8b5cf6;');
 </script>
 </body>
 </html>
